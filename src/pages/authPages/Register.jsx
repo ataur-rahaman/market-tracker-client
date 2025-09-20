@@ -6,11 +6,15 @@ import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
 import useAuth from "../../hooks/useAuth";
 import { updateProfile } from "firebase/auth";
 import { auth } from "../../firebase/firebase.init";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
+import RegisterLoading from "../../components/RegisterLoading";
 
 const Register = () => {
   const apiKey = import.meta.env.VITE_imgbb_apiKey;
   const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { createUser } = useAuth();
+  const axiosPublic = useAxiosPublic();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +43,7 @@ const Register = () => {
       });
       return;
     }
-
+    setLoading(true);
     // ✅ Upload to imgbb
     const formData = new FormData();
     formData.append("image", file);
@@ -48,7 +52,7 @@ const Register = () => {
       .then((res) => {
         if (res.data.success) {
           const photoUrl = res.data.data.url;
-          console.log(photoUrl);
+          // ✅ creating user
           createUser(email, password)
             .then((result) => {
               if (result) {
@@ -56,19 +60,35 @@ const Register = () => {
                   displayName: name,
                   photoURL: photoUrl,
                 };
+                // ✅ Updating user photo and name
                 updateProfile(auth.currentUser, profile)
                   .then(() => {
-                    Swal.fire({
-                      icon: "success",
-                      title: "Registration Successful!",
-                      html: `
+                    const newUser = {
+                      user_role: "user",
+                      user_name: name,
+                      user_email: email,
+                      user_photo: photoUrl,
+                      created_at: new Date().toISOString(),
+                      last_login: new Date().toISOString(),
+                    };
+                    // ✅ trying to save new user in database
+                    axiosPublic.post("/users", newUser).then((res) => {
+                      if (res.data.insertedId) {
+                        setLoading(false);
+                        Swal.fire({
+                          icon: "success",
+                          title: "Registration Successful!",
+                          html: `
             <p><b>Name:</b> ${name}</p>
             <p><b>Email:</b> ${email}</p>
             <img src="${photoUrl}" alt="Uploaded" class="w-24 h-24 rounded-full mt-2 mx-auto"/>
           `,
+                        });
+                      }
                     });
                   })
                   .catch((error) => {
+                    setLoading(false);
                     Swal.fire({
                       icon: "error",
                       title: "Opss",
@@ -78,14 +98,17 @@ const Register = () => {
               }
             })
             .catch((error) => {
-              Swal.fire({
-                icon: "error",
-                title: "Opss",
-                text: error.message,
-              });
+              setLoading(false);
+              if (error) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Opss",
+                  text: "That email seems to be taken. Use another email or try again.",
+                });
+              }
             });
-
         } else {
+          setLoading(false);
           Swal.fire({
             icon: "error",
             title: "Upload Failed",
@@ -103,6 +126,8 @@ const Register = () => {
       setPreview(null);
     }
   };
+
+  if (loading) return <RegisterLoading></RegisterLoading>;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
