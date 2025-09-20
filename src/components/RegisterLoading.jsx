@@ -3,7 +3,7 @@ import { FaSpinner } from "react-icons/fa";
 
 const RegisterLoading = () => {
   return (
-    <div className="h-screen">
+    <div className="h-screen flex items-center justify-center">
       <div className="flex flex-col items-center justify-center min-h-[200px]">
         <FaSpinner className="animate-spin text-blue-500 text-5xl mb-4" />
 

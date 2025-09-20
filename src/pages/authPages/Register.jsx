@@ -102,7 +102,7 @@ const Register = () => {
               if (error) {
                 Swal.fire({
                   icon: "error",
-                  title: "Opss",
+                  title: "Registration Failed",
                   text: "That email seems to be taken. Use another email or try again.",
                 });
               }
@@ -137,7 +137,7 @@ const Register = () => {
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}
-          <div className="flex items-center border rounded-lg px-3 py-2">
+          <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2">
             <AiOutlineUser className="text-gray-400 mr-2" />
             <input
               type="text"
@@ -149,7 +149,7 @@ const Register = () => {
           </div>
 
           {/* Email */}
-          <div className="flex items-center border rounded-lg px-3 py-2">
+          <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2">
             <AiOutlineMail className="text-gray-400 mr-2" />
             <input
               type="email"
@@ -179,7 +179,7 @@ const Register = () => {
           </div>
 
           {/* Password */}
-          <div className="flex items-center border rounded-lg px-3 py-2">
+          <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2">
             <AiOutlineLock className="text-gray-400 mr-2" />
             <input
               type="password"
@@ -193,7 +193,7 @@ const Register = () => {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition"
+            className="w-full cursor-pointer bg-primary hover:bg-secondary text-white py-2 rounded-lg font-semibold transition"
           >
             Register
           </button>
@@ -202,7 +202,7 @@ const Register = () => {
         {/* Link to Login */}
         <p className="text-sm text-center mt-4 text-gray-600">
           Already have an account?{" "}
-          <Link to="/login" className="text-blue-500 hover:underline">
+          <Link to="/login" className="text-primary hover:underline">
             Login
           </Link>
         </p>
