@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 import LoginLoader from "../../components/LoginLoader";
 import { AiOutlineLock, AiOutlineMail } from "react-icons/ai";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import useAuth from "../../hooks/useAuth";
 
 const LogIn = () => {
   const [loading, setLoading] = useState(false);
-  const {logInUser} = useAuth();
-  console.log(logInUser);
+  const { logInUser } = useAuth();
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const handleSubmit = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
@@ -27,6 +29,7 @@ const LogIn = () => {
     setLoading(true);
     logInUser(email, password)
       .then((result) => {
+        setUser(result);
         setLoading(false);
         Swal.fire({
           icon: "success",
@@ -36,6 +39,10 @@ const LogIn = () => {
                     <p><b>Email:</b> ${result.user.email}</p>
                     <img src="${result.user.photoURL}" alt="Uploaded" class="w-24 h-24 rounded-full mt-2 mx-auto"/>
                   `,
+        });
+        // ✅ redirecting to the desire route or home page
+        navigate(`${location.state ? location.state : "/"}`, {
+          state: { user },
         });
       })
       .catch((error) => {
@@ -50,10 +57,10 @@ const LogIn = () => {
       });
   };
 
-  if(loading) return <LoginLoader></LoginLoader>;
+  if (loading) return <LoginLoader></LoginLoader>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 pt-[50px]">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
           Login your Account
@@ -95,7 +102,7 @@ const LogIn = () => {
         {/* Link to register */}
         <p className="text-sm text-center mt-4 text-gray-600">
           Already have an account?{" "}
-          <Link to="/register" className="text-primary hover:underline">
+          <Link state={location?.state} to="/register" className="text-primary hover:underline">
             Register
           </Link>
         </p>

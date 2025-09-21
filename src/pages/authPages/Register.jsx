@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { AiOutlineUser, AiOutlineMail, AiOutlineLock } from "react-icons/ai";
@@ -13,6 +13,9 @@ const Register = () => {
   const apiKey = import.meta.env.VITE_imgbb_apiKey;
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
   const { createUser } = useAuth();
   const axiosPublic = useAxiosPublic();
 
@@ -55,6 +58,7 @@ const Register = () => {
           // ✅ creating user
           createUser(email, password)
             .then((result) => {
+              setUser(result);
               if (result) {
                 const profile = {
                   displayName: name,
@@ -85,6 +89,10 @@ const Register = () => {
           `,
                         });
                       }
+                    });
+                    // ✅ redirecting to the desire route or home page
+                    navigate(`${location.state ? location.state : "/"}`, {
+                      state: { user },
                     });
                   })
                   .catch((error) => {
@@ -130,7 +138,7 @@ const Register = () => {
   if (loading) return <RegisterLoading></RegisterLoading>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 pt-[50px]">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
           Create an Account
