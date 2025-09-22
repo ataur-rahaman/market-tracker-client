@@ -4,17 +4,40 @@ import { FiLogIn, FiLogOut } from "react-icons/fi";
 import { MdAppRegistration } from "react-icons/md";
 import useAuth from "../hooks/useAuth";
 import { Link, useLocation } from "react-router";
+import useUserRole from "../hooks/useUserRole";
+import Swal from "sweetalert2";
+import LoadingSpinner from "./LoadingSpinner";
 
 const NavBar = () => {
   const { user, logOutUser } = useAuth();
+  const { role, roleLoading } = useUserRole();
   const location = useLocation();
   const userData = location.state;
 
+  const handleLogOut = async () => {
+    try {
+      await logOutUser();
+    } catch (error) {
+      if (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Something went wrong!",
+        });
+      }
+    }
+  };
+
+  if (roleLoading) return <LoadingSpinner></LoadingSpinner>;
+
   return (
-    <div className="navbar bg-base-100 shadow-md px-4 fixed top-0 left-0 right-0 z-50">
+    <div className="navbar bg-base-100 shadow-md px-4 sticky top-0 left-0 right-0 z-50">
       {/* Left side - Logo + Site name */}
       <div className="flex-1">
-        <Link to={"/"} className="flex items-center gap-2 text-xl font-bold cursor-pointer">
+        <Link
+          to={"/"}
+          className="flex items-center gap-2 text-xl font-bold cursor-pointer"
+        >
           🌟 <span>Market Tracker</span>
         </Link>
       </div>
@@ -28,11 +51,38 @@ const NavBar = () => {
             </Link>
           </li>
           {user && (
-            <li>
-              <a className="flex items-center gap-1">
-                <FaChartBar /> Dashboard
-              </a>
-            </li>
+            <>
+              {role === "user" && (
+                <li>
+                  <Link
+                    to="/dashboard/user"
+                    className="flex items-center gap-1"
+                  >
+                    <FaChartBar /> User Dashboard{" "}
+                  </Link>
+                </li>
+              )}
+              {role === "vendor" && (
+                <li>
+                  <Link
+                    to="/dashboard/vendor"
+                    className="flex items-center gap-1"
+                  >
+                    <FaChartBar /> Vendor Dashboard{" "}
+                  </Link>
+                </li>
+              )}
+              {role === "admin" && (
+                <li>
+                  <Link
+                    to="/dashboard/admin"
+                    className="flex items-center gap-1"
+                  >
+                    <FaChartBar /> Admin Dashboard{" "}
+                  </Link>
+                </li>
+              )}
+            </>
           )}
         </ul>
       </div>
@@ -44,6 +94,7 @@ const NavBar = () => {
           <div className="avatar">
             <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
               <img
+                referrerPolicy="no-referrer"
                 src={
                   user
                     ? user?.photoURL || user?.providerData?.[0]?.photoURL
@@ -74,7 +125,7 @@ const NavBar = () => {
             </>
           ) : (
             <button
-              onClick={logOutUser}
+              onClick={handleLogOut}
               className="btn hover:btn-error btn-sm flex items-center gap-1"
             >
               <FiLogOut /> Logout
@@ -110,11 +161,38 @@ const NavBar = () => {
               </Link>
             </li>
             {user && (
-              <li>
-                <a className="flex items-center gap-1">
-                  <FaChartBar /> Dashboard
-                </a>
-              </li>
+              <>
+                {role === "user" && (
+                  <li>
+                    <Link
+                      to="/dashboard/user"
+                      className="flex items-center gap-1"
+                    >
+                      <FaChartBar /> User Dashboard{" "}
+                    </Link>
+                  </li>
+                )}
+                {role === "vendor" && (
+                  <li>
+                    <Link
+                      to="/dashboard/vendor"
+                      className="flex items-center gap-1"
+                    >
+                      <FaChartBar /> Vendor Dashboard{" "}
+                    </Link>
+                  </li>
+                )}
+                {role === "admin" && (
+                  <li>
+                    <Link
+                      to="/dashboard/admin"
+                      className="flex items-center gap-1"
+                    >
+                      <FaChartBar /> Admin Dashboard{" "}
+                    </Link>
+                  </li>
+                )}
+              </>
             )}
             {!user ? (
               <>
@@ -132,7 +210,7 @@ const NavBar = () => {
             ) : (
               <li>
                 <button
-                  onClick={logOutUser}
+                  onClick={handleLogOut}
                   className="flex items-center gap-1 text-red-500"
                 >
                   <FiLogOut /> Logout

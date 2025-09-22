@@ -6,6 +6,9 @@ import LogIn from "../pages/authPages/LogIn";
 import Register from "../pages/authPages/Register";
 import AllProducts from "../pages/AllProducts";
 import PrivateRoute from "./privateRoutes/PrivateRoute";
+import DashBoardLayout from "../layouts/DashBoardLayout";
+import DashboardHome from "../pages/dashboard/DashboardHome";
+import AdminDashboard from "../pages/dashboard/AdminDashboard";
 
 const router = createBrowserRouter([
     {
@@ -26,10 +29,27 @@ const router = createBrowserRouter([
             },
             {
                 path: "all-products",
-                element: <PrivateRoute><AllProducts></AllProducts></PrivateRoute>
+                Component: AllProducts,
             },
         ]
     },
+
+    {
+        path: "/dashboard",
+        element: <PrivateRoute><DashBoardLayout></DashBoardLayout></PrivateRoute>,
+        children: [
+            {
+                index: true,
+                Component: DashboardHome
+            },
+
+            {
+                path: "/dashboard/admin",
+                Component: AdminDashboard
+            }
+        ]
+    },
+
     {
         path: "/*",
         Component: ErrorPage,
