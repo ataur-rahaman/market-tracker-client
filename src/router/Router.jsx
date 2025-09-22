@@ -5,55 +5,50 @@ import ErrorPage from "../pages/ErrorPage";
 import LogIn from "../pages/authPages/LogIn";
 import Register from "../pages/authPages/Register";
 import AllProducts from "../pages/AllProducts";
-import PrivateRoute from "./privateRoutes/PrivateRoute";
-import DashBoardLayout from "../layouts/DashBoardLayout";
-import DashboardHome from "../pages/dashboard/DashboardHome";
 import AdminDashboard from "../pages/dashboard/AdminDashboard";
+import VendorDashboard from "../pages/dashboard/VendorDashboard";
+import UserDashboard from "../pages/dashboard/UserDashboard";
+import RoleBasedRoute from "./privateRoutes/RoleBasedRoute";
+
 
 const router = createBrowserRouter([
-    {
-        path: "/",
-        Component: RootLayout,
-        children: [
-            {
-                index: true,
-                Component: Home,
-            },
-            {
-                path: "login",
-                Component: LogIn,
-            },
-            {
-                path: "register",
-                Component: Register,
-            },
-            {
-                path: "all-products",
-                Component: AllProducts,
-            },
-        ]
-    },
+  {
+    path: "/",
+    Component: RootLayout,
+    children: [
+      { index: true, Component: Home },
+      { path: "login", Component: LogIn },
+      { path: "register", Component: Register },
+      { path: "all-products", Component: AllProducts },
+    ],
+  },
 
-    {
-        path: "/dashboard",
-        element: <PrivateRoute><DashBoardLayout></DashBoardLayout></PrivateRoute>,
-        children: [
-            {
-                index: true,
-                Component: DashboardHome
-            },
+  {
+    path: "/dashboard/admin",
+    element: (
+      <RoleBasedRoute allowedRoles={["admin"]}>
+        <AdminDashboard />
+      </RoleBasedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/vendor",
+    element: (
+      <RoleBasedRoute allowedRoles={["vendor"]}>
+        <VendorDashboard />
+      </RoleBasedRoute>
+    ),
+  },
+  {
+    path: "/dashboard/user",
+    element: (
+      <RoleBasedRoute allowedRoles={["user"]}>
+        <UserDashboard />
+      </RoleBasedRoute>
+    ),
+  },
 
-            {
-                path: "/dashboard/admin",
-                Component: AdminDashboard
-            }
-        ]
-    },
-
-    {
-        path: "/*",
-        Component: ErrorPage,
-    }
-])
+  { path: "/*", Component: ErrorPage },
+]);
 
 export default router;
