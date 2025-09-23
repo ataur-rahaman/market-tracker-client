@@ -121,6 +121,11 @@ const router = createBrowserRouter([
     element: <VendorUpdateProduct></VendorUpdateProduct>
   },
 
+  {
+    path: "/dashboard/vendor/add-advertisement",
+    element: <VendorAddAdvertisement></VendorAddAdvertisement>
+  },
+
   { path: "/*", Component: ErrorPage },
 ]);
 
