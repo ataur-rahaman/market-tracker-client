@@ -20,6 +20,8 @@ import VendorAddAdvertisement from "../pages/vendor/VendorAddAdvertisement";
 import UserViewPriceTrends from "../pages/user/UserViewPriceTrends";
 import UserManageWatchlist from "../pages/user/UserManageWatchlist";
 import UserMyOrderList from "../pages/user/UserMyOrderList";
+import ProductDetailsPage from "../pages/ProductDetailsPage";
+import VendorUpdateProduct from "../pages/vendor/VendorUpdateProduct";
 
 
 const router = createBrowserRouter([
@@ -107,6 +109,16 @@ const router = createBrowserRouter([
             element: <UserMyOrderList></UserMyOrderList>
         },
     ]
+  },
+
+  {
+    path: "/products/:id",
+    element: <ProductDetailsPage></ProductDetailsPage>
+  },
+
+  {
+    path: "/dashboard/vendor/update/:id",
+    element: <VendorUpdateProduct></VendorUpdateProduct>
   },
 
   { path: "/*", Component: ErrorPage },
