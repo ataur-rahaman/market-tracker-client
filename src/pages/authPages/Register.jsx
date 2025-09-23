@@ -13,10 +13,10 @@ import { Bounce, Slide, toast } from "react-toastify";
 const Register = () => {
   const apiKey = import.meta.env.VITE_imgbb_apiKey;
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [thisUser, setThisUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const redirectTo = location.state?.from.pathname;
   const { createUser, googleLogin, user } = useAuth();
   const axiosPublic = useAxiosPublic();
   const handleSubmit = async (e) => {
@@ -46,7 +46,6 @@ const Register = () => {
       });
       return;
     }
-    setLoading(true);
     // ✅ Upload to imgbb
     const formData = new FormData();
     formData.append("image", file);
@@ -78,25 +77,26 @@ const Register = () => {
                     // ✅ trying to save new user in database
                     axiosPublic.post("/users", newUser).then((res) => {
                       if (res.data.insertedId) {
-                        setLoading(false);
-                        Swal.fire({
-                          icon: "success",
-                          title: "Registration Successful!",
-                          html: `
-            <p><b>Name:</b> ${name}</p>
-            <p><b>Email:</b> ${email}</p>
-            <img src="${photoUrl}" alt="Uploaded" class="w-24 h-24 rounded-full mt-2 mx-auto"/>
-          `,
+                        toast.success("Login successful", {
+                          position: "top-right",
+                          autoClose: 2500,
+                          hideProgressBar: false,
+                          closeOnClick: false,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: "light",
+                          transition: Bounce,
                         });
                       }
                     });
                     // ✅ redirecting to the desire route or home page
-                    navigate(`${location.state ? location.state : "/"}`, {
+                    navigate(`${redirectTo ? redirectTo : "/"}`, {
                       state: { thisUser },
                     });
                   })
                   .catch((error) => {
-                    setLoading(false);
+
                     Swal.fire({
                       icon: "error",
                       title: "Opss",
@@ -106,7 +106,7 @@ const Register = () => {
               }
             })
             .catch((error) => {
-              setLoading(false);
+
               if (error) {
                 Swal.fire({
                   icon: "error",
@@ -116,7 +116,6 @@ const Register = () => {
               }
             });
         } else {
-          setLoading(false);
           Swal.fire({
             icon: "error",
             title: "Upload Failed",
@@ -158,9 +157,9 @@ const Register = () => {
 
           axiosPublic.post("/users", newUser).then((res) => {
             if (res.data.insertedId) {
-              toast("Login successful", {
+              toast.success("Login successful", {
                 position: "top-right",
-                autoClose: 5000,
+                autoClose: 2500,
                 hideProgressBar: false,
                 closeOnClick: false,
                 pauseOnHover: true,
@@ -171,9 +170,9 @@ const Register = () => {
               });
             }
           });
-          toast("Login successful", {
+          toast.success("Login successful", {
             position: "top-right",
-            autoClose: 5000,
+            autoClose: 2500,
             hideProgressBar: false,
             closeOnClick: false,
             pauseOnHover: true,
@@ -182,7 +181,7 @@ const Register = () => {
             theme: "light",
             transition: Bounce,
           });
-          navigate(`${location.state ? location.state : "/"}`, {
+          navigate(`${redirectTo ? redirectTo : "/"}`, {
             state: { thisUser },
           });
         }
@@ -204,7 +203,6 @@ const Register = () => {
       });
   };
 
-  if (loading) return <RegisterLoading></RegisterLoading>;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 pt-[50px]">

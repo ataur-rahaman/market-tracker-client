@@ -9,11 +9,12 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const LogIn = () => {
   const axiosPublic = useAxiosPublic();
-  const [loading, setLoading] = useState(false);
   const { logInUser, googleLogin, user } = useAuth();
   const [thisUser, setThisUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const redirectTo = location.state?.from.pathname;
+  console.log(redirectTo);
   const handleSubmit = (e) => {
     e.preventDefault();
     const email = e.target.email.value;
@@ -29,27 +30,29 @@ const LogIn = () => {
       });
       return;
     }
-    setLoading(true);
+
     logInUser(email, password)
       .then((result) => {
         setThisUser(result);
-        setLoading(false);
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful!",
-          html: `
-                    <p><b>Name:</b> ${result.user.displayName}</p>
-                    <p><b>Email:</b> ${result.user.email}</p>
-                    <img src="${result.user.photoURL}" alt="Uploaded" class="w-24 h-24 rounded-full mt-2 mx-auto"/>
-                  `,
+
+        toast.success("Login successful", {
+          position: "top-right",
+          autoClose: 2500,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
         });
         // ✅ redirecting to the desire route or home page
-        navigate(`${location.state ? location.state : "/"}`, {
+        navigate(`${redirectTo ? redirectTo : "/"}`, {
           state: { thisUser },
         });
       })
       .catch((error) => {
-        setLoading(false);
+
         if (error) {
           Swal.fire({
             icon: "error",
@@ -83,9 +86,9 @@ const LogIn = () => {
 
           axiosPublic.post("/users", newUser).then((res) => {
             if (res.data.insertedId) {
-              toast("Login successful", {
+              toast.success("Login successful", {
                 position: "top-right",
-                autoClose: 5000,
+                autoClose: 2500,
                 hideProgressBar: false,
                 closeOnClick: false,
                 pauseOnHover: true,
@@ -96,9 +99,9 @@ const LogIn = () => {
               });
             }
           });
-          toast("Login successful", {
+          toast.success("Login successful", {
             position: "top-right",
-            autoClose: 5000,
+            autoClose: 2500,
             hideProgressBar: false,
             closeOnClick: false,
             pauseOnHover: true,
@@ -107,7 +110,7 @@ const LogIn = () => {
             theme: "light",
             transition: Bounce,
           });
-          navigate(`${location.state ? location.state : "/"}`, {
+          navigate(`${redirectTo ? redirectTo : "/"}`, {
             state: { thisUser },
           });
         }
@@ -128,8 +131,6 @@ const LogIn = () => {
         }
       });
   };
-
-  if (loading) return <LoginLoader></LoginLoader>;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 pt-[50px]">

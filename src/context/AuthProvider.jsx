@@ -12,22 +12,26 @@ const AuthProvider = ({children}) => {
 
     const createUser = (email, password) => {
         setLoading(true);
-       return createUserWithEmailAndPassword(auth, email, password);
+       return createUserWithEmailAndPassword(auth, email, password)
+       .finally(() => setLoading(false))
     };
 
     const logInUser = (email, password) => {
         setLoading(true);
         return signInWithEmailAndPassword(auth, email, password)
+        .finally(() => setLoading(false))
     };
 
     const googleLogin = () => {
         setLoading(true);
         return signInWithPopup(auth, provider)
+        .finally(() => setLoading(false))
     };
 
     const logOutUser = () => {
         setLoading(true);
-        signOut(auth);
+        signOut(auth)
+        .finally(() => setLoading(false))
     };
 
     useEffect(() => {

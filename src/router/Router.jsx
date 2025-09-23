@@ -9,6 +9,17 @@ import AdminDashboard from "../pages/dashboard/AdminDashboard";
 import VendorDashboard from "../pages/dashboard/VendorDashboard";
 import UserDashboard from "../pages/dashboard/UserDashboard";
 import RoleBasedRoute from "./privateRoutes/RoleBasedRoute";
+import AdminAllProduct from "../pages/admin/AdminAllProduct";
+import AdminAllAdvertisement from "../pages/admin/AdminAllAdvertisement";
+import AdminAllOrder from "../pages/admin/AdminAllOrder";
+import AdminAllUser from "../pages/admin/AdminAllUser";
+import VendorAddProduct from "../pages/vendor/VendorAddProduct";
+import VendorMyProducts from "../pages/vendor/VendorMyProducts";
+import VendorMyAdvertisements from "../pages/vendor/VendorMyAdvertisements";
+import VendorAddAdvertisement from "../pages/vendor/VendorAddAdvertisement";
+import UserViewPriceTrends from "../pages/user/UserViewPriceTrends";
+import UserManageWatchlist from "../pages/user/UserManageWatchlist";
+import UserMyOrderList from "../pages/user/UserMyOrderList";
 
 
 const router = createBrowserRouter([
@@ -30,6 +41,24 @@ const router = createBrowserRouter([
         <AdminDashboard />
       </RoleBasedRoute>
     ),
+    children: [
+        {
+            path: "/dashboard/admin/all-users",
+            element: <AdminAllUser></AdminAllUser>
+        },
+        {
+            path: "/dashboard/admin/all-product",
+            element: <AdminAllProduct></AdminAllProduct>
+        },
+        {
+            path: "/dashboard/admin/all-advertisement",
+            element: <AdminAllAdvertisement></AdminAllAdvertisement>
+        },
+        {
+            path: "/dashboard/admin/all-order",
+            element: <AdminAllOrder></AdminAllOrder>
+        },
+    ]
   },
   {
     path: "/dashboard/vendor",
@@ -38,6 +67,24 @@ const router = createBrowserRouter([
         <VendorDashboard />
       </RoleBasedRoute>
     ),
+    children: [
+        {
+            path: "/dashboard/vendor/add-product",
+            element: <VendorAddProduct></VendorAddProduct>
+        },
+        {
+            path: "/dashboard/vendor/my-products",
+            element: <VendorMyProducts></VendorMyProducts>
+        },
+        {
+            path: "/dashboard/vendor/add-advertisement",
+            element: <VendorAddAdvertisement></VendorAddAdvertisement>
+        },
+        {
+            path: "/dashboard/vendor/my-advertisements",
+            element: <VendorMyAdvertisements></VendorMyAdvertisements>
+        },
+    ]
   },
   {
     path: "/dashboard/user",
@@ -46,6 +93,20 @@ const router = createBrowserRouter([
         <UserDashboard />
       </RoleBasedRoute>
     ),
+    children: [
+        {
+            path: "/dashboard/user/view-price-trends",
+            element: <UserViewPriceTrends></UserViewPriceTrends>
+        },
+        {
+            path: "/dashboard/user/manage-watchlist",
+            element: <UserManageWatchlist></UserManageWatchlist>
+        },
+        {
+            path: "/dashboard/user/my-order-list",
+            element: <UserMyOrderList></UserMyOrderList>
+        },
+    ]
   },
 
   { path: "/*", Component: ErrorPage },

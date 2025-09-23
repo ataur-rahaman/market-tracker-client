@@ -1,9 +1,10 @@
 import React from 'react';
+import { Outlet } from 'react-router';
 
 const VendorDashboard = () => {
     return (
         <div>
-            Vendor
+            <Outlet></Outlet>
         </div>
     );
 };
