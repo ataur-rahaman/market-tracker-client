@@ -23,7 +23,6 @@ import UserMyOrderList from "../pages/user/UserMyOrderList";
 import ProductDetailsPage from "../pages/ProductDetailsPage";
 import VendorUpdateProduct from "../pages/vendor/VendorUpdateProduct";
 
-
 const router = createBrowserRouter([
   {
     path: "/",
@@ -44,23 +43,23 @@ const router = createBrowserRouter([
       </RoleBasedRoute>
     ),
     children: [
-        {
-            path: "/dashboard/admin/all-users",
-            element: <AdminAllUser></AdminAllUser>
-        },
-        {
-            path: "/dashboard/admin/all-product",
-            element: <AdminAllProduct></AdminAllProduct>
-        },
-        {
-            path: "/dashboard/admin/all-advertisement",
-            element: <AdminAllAdvertisement></AdminAllAdvertisement>
-        },
-        {
-            path: "/dashboard/admin/all-order",
-            element: <AdminAllOrder></AdminAllOrder>
-        },
-    ]
+      {
+        path: "/dashboard/admin/all-users",
+        element: <AdminAllUser></AdminAllUser>,
+      },
+      {
+        path: "/dashboard/admin/all-product",
+        element: <AdminAllProduct></AdminAllProduct>,
+      },
+      {
+        path: "/dashboard/admin/all-advertisement",
+        element: <AdminAllAdvertisement></AdminAllAdvertisement>,
+      },
+      {
+        path: "/dashboard/admin/all-order",
+        element: <AdminAllOrder></AdminAllOrder>,
+      },
+    ],
   },
   {
     path: "/dashboard/vendor",
@@ -70,23 +69,31 @@ const router = createBrowserRouter([
       </RoleBasedRoute>
     ),
     children: [
-        {
-            path: "/dashboard/vendor/add-product",
-            element: <VendorAddProduct></VendorAddProduct>
-        },
-        {
-            path: "/dashboard/vendor/my-products",
-            element: <VendorMyProducts></VendorMyProducts>
-        },
-        {
-            path: "/dashboard/vendor/add-advertisement",
-            element: <VendorAddAdvertisement></VendorAddAdvertisement>
-        },
-        {
-            path: "/dashboard/vendor/my-advertisements",
-            element: <VendorMyAdvertisements></VendorMyAdvertisements>
-        },
-    ]
+      {
+        path: "/dashboard/vendor/update/:id",
+        element: <VendorUpdateProduct></VendorUpdateProduct>,
+      },
+
+      {
+        path: "/dashboard/vendor/add-advertisement",
+        element: <VendorAddAdvertisement></VendorAddAdvertisement>,
+      },
+
+      {
+        path: "/dashboard/vendor/my-advertisements",
+        element: <VendorMyAdvertisements></VendorMyAdvertisements>,
+      },
+
+      {
+        path: "/dashboard/vendor/add-product",
+        element: <VendorAddProduct></VendorAddProduct>,
+      },
+
+      {
+        path: "/dashboard/vendor/my-products",
+        element: <VendorMyProducts></VendorMyProducts>,
+      },
+    ],
   },
   {
     path: "/dashboard/user",
@@ -96,34 +103,24 @@ const router = createBrowserRouter([
       </RoleBasedRoute>
     ),
     children: [
-        {
-            path: "/dashboard/user/view-price-trends",
-            element: <UserViewPriceTrends></UserViewPriceTrends>
-        },
-        {
-            path: "/dashboard/user/manage-watchlist",
-            element: <UserManageWatchlist></UserManageWatchlist>
-        },
-        {
-            path: "/dashboard/user/my-order-list",
-            element: <UserMyOrderList></UserMyOrderList>
-        },
-    ]
+      {
+        path: "/dashboard/user/view-price-trends",
+        element: <UserViewPriceTrends></UserViewPriceTrends>,
+      },
+      {
+        path: "/dashboard/user/manage-watchlist",
+        element: <UserManageWatchlist></UserManageWatchlist>,
+      },
+      {
+        path: "/dashboard/user/my-order-list",
+        element: <UserMyOrderList></UserMyOrderList>,
+      },
+    ],
   },
 
   {
     path: "/products/:id",
-    element: <ProductDetailsPage></ProductDetailsPage>
-  },
-
-  {
-    path: "/dashboard/vendor/update/:id",
-    element: <VendorUpdateProduct></VendorUpdateProduct>
-  },
-
-  {
-    path: "/dashboard/vendor/add-advertisement",
-    element: <VendorAddAdvertisement></VendorAddAdvertisement>
+    element: <ProductDetailsPage></ProductDetailsPage>,
   },
 
   { path: "/*", Component: ErrorPage },
