@@ -47,7 +47,7 @@ const VendorMyProducts = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="p-6">
+    <div className="p-0">
       <h2 className="text-2xl font-bold mb-4">📦 My Products: {products.length}</h2>
 
       {products.length === 0 ? (

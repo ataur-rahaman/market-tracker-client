@@ -5,12 +5,13 @@ import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import Swal from "sweetalert2";
 
 const VendorMyAdvertisements = () => {
   const { user } = useAuth();
   const axiosPublic = useAxiosPublic();
 
-  const [editingAd, setEditingAd] = useState(null); 
+  const [editingAd, setEditingAd] = useState(null);
 
   // Fetch vendor's ads
   const {
@@ -21,15 +22,28 @@ const VendorMyAdvertisements = () => {
     queryKey: ["vendorAdvertisements", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosPublic.get(`/advertisements/vendor/${user?.email}`);
+      const res = await axiosPublic.get(
+        `/advertisements/vendor/${user?.email}`
+      );
       return res.data;
     },
   });
 
   // Delete Ad
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this advertisement?"))
-      return;
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        return;
+      }
+    });
     try {
       await axiosPublic.delete(`/advertisements/${id}`);
       toast.success("Advertisement deleted successfully!");
@@ -43,15 +57,23 @@ const VendorMyAdvertisements = () => {
   // Update Ad
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (!editingAd) return;
+
+    // strip _id before sending
+    const { _id, ...payload } = editingAd;
+
     try {
       const res = await axiosPublic.put(
         `/advertisements/${editingAd._id}`,
-        editingAd
+        payload
       );
-      if (res.data.success) {
+
+      if (res.data.success || res.data.modifiedCount > 0) {
         toast.success("Advertisement updated successfully!");
-        setEditingAd(null);
+        setEditingAd(null); // close modal
         refetch();
+      } else {
+        toast.info("No changes were made.");
       }
     } catch (error) {
       console.error(error);
@@ -62,8 +84,10 @@ const VendorMyAdvertisements = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">📢 My Advertisements: {ads.length}</h2>
+    <div className="p-0">
+      <h2 className="text-2xl font-bold mb-4">
+        📢 My Advertisements: {ads.length}
+      </h2>
 
       {ads.length === 0 ? (
         <p className="text-gray-500">No advertisements submitted yet.</p>
@@ -98,7 +122,7 @@ const VendorMyAdvertisements = () => {
                   </td>
                   <td className="flex gap-2 justify-center">
                     <button
-                      onClick={() => setEditingAd(ad)}
+                      onClick={() => setEditingAd({ ...ad })} // clone object
                       className="btn btn-sm btn-info text-white"
                     >
                       Update
@@ -125,7 +149,7 @@ const VendorMyAdvertisements = () => {
             <form onSubmit={handleUpdate} className="space-y-3">
               <input
                 type="text"
-                value={editingAd.ad_title}
+                value={editingAd?.ad_title || ""}
                 onChange={(e) =>
                   setEditingAd({ ...editingAd, ad_title: e.target.value })
                 }
@@ -133,7 +157,7 @@ const VendorMyAdvertisements = () => {
                 required
               />
               <textarea
-                value={editingAd.description}
+                value={editingAd?.description || ""}
                 onChange={(e) =>
                   setEditingAd({ ...editingAd, description: e.target.value })
                 }
