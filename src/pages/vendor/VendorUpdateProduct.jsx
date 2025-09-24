@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useUserRole from "../../hooks/useUserRole";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -10,7 +10,7 @@ const VendorUpdateProduct = () => {
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
   const { role } = useUserRole(); // ✅ get current user role (vendor/admin)
-
+  const location = useLocation();
 //   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({});
@@ -49,7 +49,7 @@ const VendorUpdateProduct = () => {
 
       if (res.data.success) {
         Swal.fire("Updated!", "Product updated successfully", "success");
-        navigate("/dashboard/vendor/my-products");
+        navigate(`${location.state ? location.state : "/dashboard/vendor/my-products"}`);
       }
     } catch (error) {
       console.error(error);

@@ -126,7 +126,7 @@ const NavBar = () => {
           ) : (
             <button
               onClick={handleLogOut}
-              className="btn hover:btn-error btn-sm flex items-center gap-1"
+              className="btn hover:btn-error hover:text-white btn-sm flex items-center gap-1"
             >
               <FiLogOut /> Logout
             </button>

@@ -60,6 +60,10 @@ const router = createBrowserRouter([
         path: "/dashboard/admin/all-order",
         element: <AdminAllOrder></AdminAllOrder>,
       },
+      {
+        path: "/dashboard/admin/products/:id/edit",
+        element: <VendorUpdateProduct></VendorUpdateProduct>
+      }
     ],
   },
   {

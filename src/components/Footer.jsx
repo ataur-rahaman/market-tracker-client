@@ -22,7 +22,6 @@ const Footer = () => {
           <p className="text-sm">📧 support@markettracker.com</p>
           <p className="text-sm">📞 +880 1234-567890</p>
           <a
-            href="/terms"
             className="block mt-3 text-sm text-primary hover:underline"
           >
             Terms & Conditions
