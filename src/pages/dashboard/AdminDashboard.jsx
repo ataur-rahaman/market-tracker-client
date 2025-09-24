@@ -1,9 +1,10 @@
 import React from 'react';
+import { Outlet } from 'react-router';
 
 const AdminDashboard = () => {
     return (
         <div>
-            Admin
+            <Outlet></Outlet>
         </div>
     );
 };

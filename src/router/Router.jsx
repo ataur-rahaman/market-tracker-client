@@ -22,6 +22,7 @@ import UserManageWatchlist from "../pages/user/UserManageWatchlist";
 import UserMyOrderList from "../pages/user/UserMyOrderList";
 import ProductDetailsPage from "../pages/ProductDetailsPage";
 import VendorUpdateProduct from "../pages/vendor/VendorUpdateProduct";
+import VendorHomePage from "../pages/vendor/VendorHomePage";
 
 const router = createBrowserRouter([
   {
@@ -69,6 +70,12 @@ const router = createBrowserRouter([
       </RoleBasedRoute>
     ),
     children: [
+
+      {
+        index: true,
+        element: <VendorHomePage></VendorHomePage>
+      },
+
       {
         path: "/dashboard/vendor/update/:id",
         element: <VendorUpdateProduct></VendorUpdateProduct>,
