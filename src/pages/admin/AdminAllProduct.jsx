@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -11,6 +11,7 @@ import {
   FaStore,
   FaUser,
 } from "react-icons/fa";
+import ReactPaginate from "react-paginate";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
@@ -26,173 +27,108 @@ const AdminAllProduct = () => {
   const qc = useQueryClient();
   const location = useLocation();
 
-  // controls
+  // Controls
   const [statusFilter, setStatusFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [rejectModal, setRejectModal] = useState({
-    open: false,
-    product: null,
-  });
-  const [deleteModal, setDeleteModal] = useState({
-    open: false,
-    product: null,
-  });
+  const [currentPage, setCurrentPage] = useState(1); // 1-based for UX
+  const LIMIT = 8;
 
-  // load products
+  const [rejectModal, setRejectModal] = useState({ open: false, product: null });
+  const [deleteModal, setDeleteModal] = useState({ open: false, product: null });
+
+  // Load paginated products from backend
   const {
-    data: products = [],
+    data,
     isLoading,
     isError,
     refetch,
-    isFetching,
+    isFetching, // true while background refetch (page/filter/search change)
   } = useQuery({
-    queryKey: ["adminAllProducts"],
+    queryKey: ["adminAllProducts", currentPage, statusFilter, search],
     queryFn: async () => {
-      const res = await axiosPublic.get("/products");
-      return res.data || [];
+      const res = await axiosPublic.get(
+        `/products-admin?page=${currentPage}&limit=${LIMIT}&status=${encodeURIComponent(
+          statusFilter
+        )}&search=${encodeURIComponent(search)}`
+      );
+      return res.data;
     },
-    refetchOnWindowFocus: false,
+    keepPreviousData: true,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
 
-  // Approve
+  const products = data?.products || [];
+  const total = data?.total || 0;
+  const pageCount = Math.max(1, Math.ceil(total / LIMIT));
+
+  // Actions (no optimistic cache; we refetch server data)
   const approveMutation = useMutation({
-    mutationFn: async (product) => {
-      const res = await axiosPublic.patch(`/products/${product._id}/status`, {
+    mutationFn: async (product) =>
+      axiosPublic.patch(`/products/${product._id}/status`, {
         status: "approved",
         reason: null,
         feedback: null,
-      });
-      return res.data;
+      }),
+    onSuccess: () => {
+      Swal.fire("Approved", "Product has been approved", "success");
+      qc.invalidateQueries({ queryKey: ["adminAllProducts"] });
     },
-    onMutate: async (product) => {
-      await qc.cancelQueries({ queryKey: ["adminAllProducts"] });
-      const prev = qc.getQueryData(["adminAllProducts"]);
-      qc.setQueryData(["adminAllProducts"], (old = []) =>
-        old.map((p) =>
-          p._id === product._id
-            ? {
-                ...p,
-                status: "approved",
-                rejection_reason: null,
-                rejection_feedback: null,
-              }
-            : p
-        )
-      );
-      return { prev };
-    },
-    onError: (_e, _vars, ctx) => {
-      if (ctx?.prev) qc.setQueryData(["adminAllProducts"], ctx.prev);
-      Swal.fire("Error", "Failed to approve product", "error");
-    },
-    onSuccess: () =>
-      Swal.fire("Approved", "Product has been approved", "success"),
-    onSettled: () => qc.invalidateQueries({ queryKey: ["adminAllProducts"] }),
+    onError: () => Swal.fire("Error", "Failed to approve product", "error"),
   });
 
-  // Reject
   const rejectMutation = useMutation({
-    mutationFn: async ({ product, reason, feedback }) => {
-      const res = await axiosPublic.patch(`/products/${product._id}/status`, {
+    mutationFn: async ({ product, reason, feedback }) =>
+      axiosPublic.patch(`/products/${product._id}/status`, {
         status: "rejected",
         reason,
         feedback,
-      });
-      return res.data;
+      }),
+    onSuccess: () => {
+      Swal.fire("Rejected", "Product has been rejected", "success");
+      qc.invalidateQueries({ queryKey: ["adminAllProducts"] });
     },
-    onMutate: async ({ product, reason, feedback }) => {
-      await qc.cancelQueries({ queryKey: ["adminAllProducts"] });
-      const prev = qc.getQueryData(["adminAllProducts"]);
-      qc.setQueryData(["adminAllProducts"], (old = []) =>
-        old.map((p) =>
-          p._id === product._id
-            ? {
-                ...p,
-                status: "rejected",
-                rejection_reason: reason,
-                rejection_feedback: feedback,
-              }
-            : p
-        )
-      );
-      return { prev };
-    },
-    onError: (_e, _vars, ctx) => {
-      if (ctx?.prev) qc.setQueryData(["adminAllProducts"], ctx.prev);
-      Swal.fire("Error", "Failed to reject product", "error");
-    },
-    onSuccess: () =>
-      Swal.fire("Rejected", "Product has been rejected", "success"),
-    onSettled: () => qc.invalidateQueries({ queryKey: ["adminAllProducts"] }),
+    onError: () => Swal.fire("Error", "Failed to reject product", "error"),
   });
 
-  // Delete
   const deleteMutation = useMutation({
-    mutationFn: async (product) => {
-      const res = await axiosPublic.delete(`/products/${product._id}`);
-      return res.data;
+    mutationFn: async (product) => axiosPublic.delete(`/products/${product._id}`),
+    onSuccess: () => {
+      Swal.fire("Deleted", "Product removed successfully", "success");
+      // If we deleted the last item on the page, bump back a page to keep UX smooth
+      qc.invalidateQueries({ queryKey: ["adminAllProducts"] });
     },
-    onMutate: async (product) => {
-      await qc.cancelQueries({ queryKey: ["adminAllProducts"] });
-      const prev = qc.getQueryData(["adminAllProducts"]);
-      qc.setQueryData(["adminAllProducts"], (old = []) =>
-        old.filter((p) => p._id !== product._id)
-      );
-      return { prev };
-    },
-    onError: (_e, _vars, ctx) => {
-      if (ctx?.prev) qc.setQueryData(["adminAllProducts"], ctx.prev);
-      Swal.fire("Error", "Failed to delete product", "error");
-    },
-    onSuccess: () =>
-      Swal.fire("Deleted", "Product has been removed", "success"),
-    onSettled: () => qc.invalidateQueries({ queryKey: ["adminAllProducts"] }),
+    onError: () => Swal.fire("Error", "Failed to delete product", "error"),
   });
 
-  // Derived list
-  const filtered = useMemo(() => {
-    const s = search.trim().toLowerCase();
-    return products
-      .filter((p) =>
-        statusFilter === "all" ? true : (p.status || "pending") === statusFilter
-      )
-      .filter((p) =>
-        !s
-          ? true
-          : (p.item_name || "").toLowerCase().includes(s) ||
-            (p.market_name || "").toLowerCase().includes(s) ||
-            (p.vendor_email || "").toLowerCase().includes(s)
-      )
-      .sort((a, b) => (a.item_name || "").localeCompare(b.item_name || ""));
-  }, [products, statusFilter, search]);
-
-  const onApprove = (product) => {
-    if ((product.status || "pending") === "approved") return;
-    approveMutation.mutate(product);
+  const handlePageClick = ({ selected }) => {
+    // react-paginate gives 0-based index; convert to 1-based
+    setCurrentPage(selected + 1);
+    // optional: scroll to top of table
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const onOpenReject = (product) => setRejectModal({ open: true, product });
+  const onApprove = (p) => {
+    if ((p.status || "pending") === "approved") return;
+    approveMutation.mutate(p);
+  };
+
+  const onOpenReject = (p) => setRejectModal({ open: true, product: p });
   const onCloseReject = () => setRejectModal({ open: false, product: null });
 
-  const onSubmitReject = async (e) => {
+  const onSubmitReject = (e) => {
     e.preventDefault();
     const form = new FormData(e.currentTarget);
     const reason = form.get("reason")?.toString().trim();
     const feedback = form.get("feedback")?.toString().trim();
-
     if (!reason || !feedback) {
-      return Swal.fire(
-        "Missing info",
-        "Please provide both reason and feedback.",
-        "warning"
-      );
+      return Swal.fire("Missing info", "Please provide both fields.", "warning");
     }
     rejectMutation.mutate({ product: rejectModal.product, reason, feedback });
     onCloseReject();
   };
 
-  const onOpenDelete = (product) => setDeleteModal({ open: true, product });
+  const onOpenDelete = (p) => setDeleteModal({ open: true, product: p });
   const onCloseDelete = () => setDeleteModal({ open: false, product: null });
   const onConfirmDelete = () => {
     deleteMutation.mutate(deleteModal.product);
@@ -214,12 +150,9 @@ const AdminAllProduct = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold">
-            Admin · All Products
-          </h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Admin · All Products</h1>
           <p className="text-sm md:text-base text-gray-500">
-            Review, approve, reject, edit, or remove products created by
-            vendors.
+            Review, approve, reject, edit, or remove products created by vendors.
           </p>
         </div>
         <button onClick={() => refetch()} className="btn btn-outline">
@@ -234,7 +167,10 @@ const AdminAllProduct = () => {
             <label className="label">Filter by Status</label>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
               className="select select-bordered w-full"
             >
               <option value="all">All</option>
@@ -252,12 +188,18 @@ const AdminAllProduct = () => {
                   className="grow outline-none bg-transparent"
                   placeholder="e.g., Onion / Kawran Bazar / vendor@mail.com"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 />
               </div>
               <button
                 className="join-item btn btn-outline"
-                onClick={() => setSearch("")}
+                onClick={() => {
+                  setSearch("");
+                  setCurrentPage(1);
+                }}
               >
                 Clear
               </button>
@@ -266,9 +208,16 @@ const AdminAllProduct = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card bg-base-100 shadow">
-        <div className="card-body p-0 md:p-0 overflow-x-scroll">
+      {/* Table + Fetching overlay */}
+      <div className="card bg-base-100 shadow relative">
+        {/* overlay while fetching new page/filter/search */}
+        {isFetching && !isLoading && (
+          <div className="absolute inset-0 bg-base-100/60 backdrop-blur-[1px] flex items-center justify-center z-10">
+            <span className="loading loading-spinner loading-lg" />
+          </div>
+        )}
+
+        <div className="card-body p-0 md:p-0 overflow-x-auto">
           <table className="table">
             <thead>
               <tr>
@@ -285,7 +234,7 @@ const AdminAllProduct = () => {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {products.length === 0 ? (
                 <tr>
                   <td colSpan={8}>
                     <div className="py-10 text-center text-gray-500">
@@ -294,13 +243,13 @@ const AdminAllProduct = () => {
                   </td>
                 </tr>
               ) : (
-                filtered.map((p, idx) => {
+                products.map((p, idx) => {
                   const latest = (p.prices || [])
                     .slice()
                     .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
                   return (
                     <tr key={p._id}>
-                      <td>{idx + 1}</td>
+                      <td>{(currentPage - 1) * LIMIT + idx + 1}</td>
                       <td>
                         <div className="flex items-center gap-3">
                           <div className="avatar">
@@ -318,20 +267,12 @@ const AdminAllProduct = () => {
                       </td>
                       <td className="hidden lg:table-cell">{p.market_name}</td>
                       <td className="hidden md:table-cell">{p.vendor_email}</td>
-                      <td className="font-medium">
-                        ৳{Number(p.price_per_unit).toFixed(2)}
-                      </td>
+                      <td className="font-medium">৳{Number(p.price_per_unit).toFixed(2)}</td>
                       <td className="hidden md:table-cell">
-                        {latest?.date
-                          ? new Date(latest.date).toLocaleDateString()
-                          : "—"}
+                        {latest?.date ? new Date(latest.date).toLocaleDateString() : "—"}
                       </td>
                       <td>
-                        <span
-                          className={`badge ${
-                            STATUS_COLORS[p.status || "pending"]
-                          }`}
-                        >
+                        <span className={`badge ${STATUS_COLORS[p.status || "pending"]}`}>
                           {p.status || "pending"}
                         </span>
                         {p.status === "rejected" && p.rejection_reason && (
@@ -345,7 +286,7 @@ const AdminAllProduct = () => {
                           <button
                             className="btn btn-xs btn-success"
                             onClick={() => onApprove(p)}
-                            disabled={(p.status || "pending") === "approved"}
+                            disabled={(p.status || "pending") === "approved" || approveMutation.isPending}
                             title="Approve"
                           >
                             <FaCheckCircle />
@@ -353,6 +294,7 @@ const AdminAllProduct = () => {
                           <button
                             className="btn btn-xs btn-warning"
                             onClick={() => onOpenReject(p)}
+                            disabled={rejectMutation.isPending}
                             title="Reject"
                           >
                             <FaTimesCircle />
@@ -368,6 +310,7 @@ const AdminAllProduct = () => {
                           <button
                             className="btn btn-xs btn-error"
                             onClick={() => onOpenDelete(p)}
+                            disabled={deleteMutation.isPending}
                             title="Remove"
                           >
                             <FaTrash />
@@ -383,23 +326,54 @@ const AdminAllProduct = () => {
         </div>
       </div>
 
+      {/* Pagination */}
+      {pageCount > 1 && (
+        <div className="flex justify-center py-4">
+          <ReactPaginate
+            previousLabel={"← Prev"}
+            nextLabel={"Next →"}
+            breakLabel={"…"}
+            pageCount={pageCount}
+            forcePage={Math.min(currentPage - 1, pageCount - 1)}
+            onPageChange={handlePageClick}
+            renderOnZeroPageCount={null}
+            // container
+            containerClassName="join"
+            // page button (li + a)
+            pageClassName="join-item"
+            pageLinkClassName="btn btn-sm"
+            // previous
+            previousClassName="join-item"
+            previousLinkClassName="btn btn-sm"
+            // next
+            nextClassName="join-item"
+            nextLinkClassName="btn btn-sm"
+            // active
+            activeLinkClassName="btn-primary text-white"
+            // break
+            breakClassName="join-item"
+            breakLinkClassName="btn btn-sm btn-ghost"
+            // disable styles
+            disabledLinkClassName="btn-disabled"
+          />
+        </div>
+      )}
+
       {/* Reject Modal */}
       {rejectModal.open && (
         <dialog className="modal modal-open">
           <div className="modal-box">
             <h3 className="font-bold text-lg">Reject Product</h3>
             <p className="text-sm text-gray-500 mb-4">
-              Provide a clear <b>reason</b> and <b>feedback</b>. Vendors will
-              see this on their product.
+              Provide a clear <b>reason</b> and <b>feedback</b>. Vendors will see this.
             </p>
-
             <form onSubmit={onSubmitReject} className="space-y-3">
               <div className="form-control">
                 <label className="label">Reason</label>
                 <input
                   name="reason"
                   className="input input-bordered w-full"
-                  placeholder="e.g., Insufficient details / Wrong image"
+                  placeholder="e.g., Wrong image / Incomplete info"
                   required
                 />
               </div>
@@ -412,13 +386,8 @@ const AdminAllProduct = () => {
                   required
                 />
               </div>
-
               <div className="modal-action">
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={onCloseReject}
-                >
+                <button type="button" className="btn btn-ghost" onClick={onCloseReject}>
                   Cancel
                 </button>
                 <button type="submit" className="btn btn-warning">
