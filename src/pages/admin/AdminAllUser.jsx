@@ -228,16 +228,6 @@ const AdminAllUser = () => {
                       </td>
                       <td className="hidden md:table-cell">{formatDate(u.created_at)}</td>
                       <td className="hidden md:table-cell">{formatDate(u.last_login)}</td>
-                      {/* <td className="text-right">
-                        <button
-                          className="btn btn-sm"
-                          onClick={() => handleChangeRole(u, u.user_role || "user")}
-                          disabled
-                          title="Select a role from the dropdown to update"
-                        >
-                          Update
-                        </button>
-                      </td> */}
                     </tr>
                   );
                 })}

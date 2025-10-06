@@ -23,6 +23,8 @@ import UserMyOrderList from "../pages/user/UserMyOrderList";
 import ProductDetailsPage from "../pages/ProductDetailsPage";
 import VendorUpdateProduct from "../pages/vendor/VendorUpdateProduct";
 import VendorHomePage from "../pages/vendor/VendorHomePage";
+import UserHomePage from "../pages/user/UserHomePage";
+import AdminHomePage from "../pages/admin/AdminHomePage";
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,7 @@ const router = createBrowserRouter([
       { path: "login", Component: LogIn },
       { path: "register", Component: Register },
       { path: "all-products", Component: AllProducts },
+      { path: "/products/:id", element: <ProductDetailsPage></ProductDetailsPage> },
     ],
   },
 
@@ -44,6 +47,10 @@ const router = createBrowserRouter([
       </RoleBasedRoute>
     ),
     children: [
+      {
+        index:true,
+        element: <AdminHomePage></AdminHomePage>
+      },
       {
         path: "/dashboard/admin/all-users",
         element: <AdminAllUser></AdminAllUser>,
@@ -62,8 +69,8 @@ const router = createBrowserRouter([
       },
       {
         path: "/dashboard/admin/products/:id/edit",
-        element: <VendorUpdateProduct></VendorUpdateProduct>
-      }
+        element: <VendorUpdateProduct></VendorUpdateProduct>,
+      },
     ],
   },
   {
@@ -74,10 +81,9 @@ const router = createBrowserRouter([
       </RoleBasedRoute>
     ),
     children: [
-
       {
         index: true,
-        element: <VendorHomePage></VendorHomePage>
+        element: <VendorHomePage></VendorHomePage>,
       },
 
       {
@@ -115,6 +121,10 @@ const router = createBrowserRouter([
     ),
     children: [
       {
+        index: true,
+        element: <UserHomePage></UserHomePage>
+      },
+      {
         path: "/dashboard/user/view-price-trends",
         element: <UserViewPriceTrends></UserViewPriceTrends>,
       },
@@ -127,11 +137,6 @@ const router = createBrowserRouter([
         element: <UserMyOrderList></UserMyOrderList>,
       },
     ],
-  },
-
-  {
-    path: "/products/:id",
-    element: <ProductDetailsPage></ProductDetailsPage>,
   },
 
   { path: "/*", Component: ErrorPage },

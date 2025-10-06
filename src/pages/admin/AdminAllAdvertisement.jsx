@@ -264,13 +264,13 @@ const AdminAllAdvertisement = () => {
                             </option>
                           ))}
                         </select>
-                        <button
+                        <div className="flex items-center justify-center"><button
                           className="btn btn-xs btn-error"
                           onClick={() => handleDelete(ad)}
                           title="Delete"
                         >
                           <FaTrash />
-                        </button>
+                        </button></div>
                       </div>
                     </td>
                   </tr>

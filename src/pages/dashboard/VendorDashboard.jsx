@@ -19,7 +19,7 @@ const VendorDashboard = () => {
     <NavBar></NavBar>
 
       {/* Main Content */}
-      <div className="flex-1 top-0">
+      <div className="flex-1 top-0 pt-15">
         {/* Drawer for mobile (DaisyUI) */}
         <div className="drawer lg:drawer-open">
           <input id="vendor-drawer" type="checkbox" className="drawer-toggle" />
@@ -38,21 +38,22 @@ const VendorDashboard = () => {
               <div className="card bg-base-100 shadow-sm border border-gray-300">
                 <div className="card-body p-0 md:p-6">
                   <Outlet />
+                  <Footer></Footer>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sidebar */}
-          <div className="drawer-side">
+          <div className="drawer-side fixed top-15 overflow-y-scroll">
             <label htmlFor="vendor-drawer" aria-label="close sidebar" className="drawer-overlay"></label>
-            <aside className="w-72 bg-base-100 border-r border-r-gray-300 min-h-full">
+            <aside className="w-60 bg-base-100 border-r-[1.5px] border-r-gray-200 h-screen">
               <div className="p-5 border-b border-b-gray-300">
                 <h2 className="text-xl font-bold">Vendor Panel</h2>
                 <p className="text-sm text-base-content/60">Manage your market posts</p>
               </div>
 
-              <nav className="p-4 space-y-2">
+              <nav className="p-4 space-y-2 text-[16px]">
                 <NavLink
                   to="/dashboard/vendor/add-product"
                   className={({ isActive }) =>
@@ -60,7 +61,7 @@ const VendorDashboard = () => {
                   }
                 >
                   <MdAddCircleOutline className="text-xl" />
-                  <span>📝 Add Product</span>
+                  <span>Add Product</span>
                 </NavLink>
 
                 <NavLink
@@ -70,7 +71,7 @@ const VendorDashboard = () => {
                   }
                 >
                   <FiPackage className="text-xl" />
-                  <span>📄 My Products</span>
+                  <span>My Products</span>
                 </NavLink>
 
                 <div className="divider my-3" />
@@ -82,7 +83,7 @@ const VendorDashboard = () => {
                   }
                 >
                   <HiOutlineMegaphone className="text-xl" />
-                  <span>📢 Add Advertisement</span>
+                  <span>Add Advertisement</span>
                 </NavLink>
 
                 <NavLink
@@ -92,14 +93,14 @@ const VendorDashboard = () => {
                   }
                 >
                   <TbChartBar className="text-xl" />
-                  <span>📊 My Advertisements</span>
+                  <span>My Advertisements</span>
                 </NavLink>
               </nav>
             </aside>
           </div>
         </div>
       </div>
-      <Footer></Footer>
+      
     </div>
   );
 };

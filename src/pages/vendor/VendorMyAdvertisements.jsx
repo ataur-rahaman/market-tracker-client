@@ -120,19 +120,21 @@ const VendorMyAdvertisements = () => {
                       {ad.status}
                     </span>
                   </td>
-                  <td className="flex gap-2 justify-center">
-                    <button
-                      onClick={() => setEditingAd({ ...ad })} // clone object
-                      className="btn btn-sm btn-info text-white"
-                    >
-                      Update
-                    </button>
-                    <button
-                      onClick={() => handleDelete(ad._id)}
-                      className="btn btn-sm btn-error text-white"
-                    >
-                      Delete
-                    </button>
+                  <td>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setEditingAd({ ...ad })} // clone object
+                        className="btn btn-sm btn-info text-white"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={() => handleDelete(ad._id)}
+                        className="btn btn-sm btn-error text-white"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

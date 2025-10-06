@@ -210,7 +210,7 @@ const AdminAllProduct = () => {
     );
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="max-w-full mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -268,7 +268,7 @@ const AdminAllProduct = () => {
 
       {/* Table */}
       <div className="card bg-base-100 shadow">
-        <div className="card-body overflow-x-auto">
+        <div className="card-body p-0 md:p-0 overflow-x-scroll">
           <table className="table">
             <thead>
               <tr>
