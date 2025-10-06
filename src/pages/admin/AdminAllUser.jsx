@@ -1,13 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaUserShield, FaSearch, FaSyncAlt } from "react-icons/fa";
 import { MdAdminPanelSettings } from "react-icons/md";
+import ReactPaginate from "react-paginate";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAuth from "../../hooks/useAuth";
 import LoadingSpinner from "../../components/LoadingSpinner";
 
 const ROLE_OPTIONS = ["user", "vendor", "admin"];
+const LIMIT = 8;
 
 const formatDate = (val) => {
   if (!val) return "—";
@@ -24,33 +26,49 @@ const AdminAllUser = () => {
   const { user: me } = useAuth();
   const qc = useQueryClient();
 
-  // Controls
   const [roleFilter, setRoleFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Fetch users
-  const { data: users = [], isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ["adminAllUsers"],
+  // Fetch paginated users
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery({
+    queryKey: ["adminAllUsers", currentPage, roleFilter, search],
     queryFn: async () => {
-      const res = await axiosPublic.get("/users");
-      return res.data || [];
+      const res = await axiosPublic.get(
+        `/users?page=${currentPage}&limit=${LIMIT}&role=${encodeURIComponent(
+          roleFilter
+        )}&search=${encodeURIComponent(search)}`
+      );
+      return res.data;
     },
-    refetchOnWindowFocus: false,
+    keepPreviousData: true,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
   });
 
-  // Role update mutation (optimistic)
+  const users = data?.users || [];
+  const total = data?.total || 0;
+  const pageCount = Math.max(1, Math.ceil(total / LIMIT));
+
+  // Update role mutation
   const { mutate: updateRole, isLoading: updating } = useMutation({
     mutationFn: async ({ _id, role }) => {
       const res = await axiosPublic.patch(`/users/${_id}/role`, { role });
       return res.data;
     },
-    onMutate: async (variables) => {
+    onMutate: async (vars) => {
       await qc.cancelQueries({ queryKey: ["adminAllUsers"] });
       const prev = qc.getQueryData(["adminAllUsers"]);
-      // optimistic update
       qc.setQueryData(["adminAllUsers"], (old = []) =>
-        old.map((u) => (u._id === variables._id ? { ...u, user_role: variables.role } : u))
+        old.map((u) =>
+          u._id === vars._id ? { ...u, user_role: vars.role } : u
+        )
       );
       return { prev };
     },
@@ -58,32 +76,13 @@ const AdminAllUser = () => {
       if (ctx?.prev) qc.setQueryData(["adminAllUsers"], ctx.prev);
       Swal.fire("Error", "Failed to update role", "error");
     },
-    onSuccess: () => {
-      Swal.fire("Updated", "User role has been updated", "success");
-    },
-    onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["adminAllUsers"] });
-    },
+    onSuccess: () => Swal.fire("Updated", "User role has been updated", "success"),
+    onSettled: () => qc.invalidateQueries({ queryKey: ["adminAllUsers"] }),
   });
-
-  // Derived filtered list
-  const filtered = useMemo(() => {
-    const s = search.trim().toLowerCase();
-    return users
-      .filter((u) => (roleFilter === "all" ? true : (u.user_role || "user") === roleFilter))
-      .filter((u) =>
-        !s
-          ? true
-          : (u.user_email || "").toLowerCase().includes(s) ||
-            (u.user_name || "").toLowerCase().includes(s)
-      )
-      .sort((a, b) => (a.user_email || "").localeCompare(b.user_email || ""));
-  }, [users, roleFilter, search]);
 
   const handleChangeRole = async (u, newRole) => {
     if (u.user_role === newRole) return;
 
-    // prevent changing own role
     if (me?.email && u.user_email?.toLowerCase() === me.email.toLowerCase()) {
       return Swal.fire("Not allowed", "You cannot change your own role.", "warning");
     }
@@ -105,6 +104,11 @@ const AdminAllUser = () => {
     if (result.isConfirmed) {
       updateRole({ _id: u._id, role: newRole });
     }
+  };
+
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected + 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (isLoading) return <LoadingSpinner />;
@@ -129,11 +133,9 @@ const AdminAllUser = () => {
             View and manage user roles across the platform.
           </p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => refetch()} className="btn btn-outline">
-            <FaSyncAlt className={isFetching ? "animate-spin" : ""} /> Refresh
-          </button>
-        </div>
+        <button onClick={() => refetch()} className="btn btn-outline">
+          <FaSyncAlt className={isFetching ? "animate-spin" : ""} /> Refresh
+        </button>
       </div>
 
       {/* Controls */}
@@ -143,7 +145,10 @@ const AdminAllUser = () => {
             <label className="label">Filter by Role</label>
             <select
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              onChange={(e) => {
+                setRoleFilter(e.target.value);
+                setCurrentPage(1);
+              }}
               className="select select-bordered w-full"
             >
               <option value="all">All</option>
@@ -162,12 +167,21 @@ const AdminAllUser = () => {
                 <FaSearch className="opacity-60" />
                 <input
                   className="grow outline-none bg-transparent"
-                  placeholder="e.g., alice / alice@mail.com"
+                  placeholder="e.g., alice@mail.com"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setCurrentPage(1);
+                  }}
                 />
               </div>
-              <button className="join-item btn btn-outline" onClick={() => setSearch("")}>
+              <button
+                className="join-item btn btn-outline"
+                onClick={() => {
+                  setSearch("");
+                  setCurrentPage(1);
+                }}
+              >
                 Clear
               </button>
             </div>
@@ -175,41 +189,43 @@ const AdminAllUser = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="card bg-base-100 shadow">
+      {/* Table with loading overlay */}
+      <div className="card bg-base-100 shadow relative">
+        {isFetching && !isLoading && (
+          <div className="absolute inset-0 bg-base-100/60 flex items-center justify-center z-10">
+            <span className="loading loading-spinner loading-lg" />
+          </div>
+        )}
+
         <div className="card-body overflow-x-auto">
           <div className="flex items-center justify-between mb-2">
             <h2 className="card-title">
-              <FaUserShield /> Users ({filtered.length})
+              <FaUserShield /> Users ({total})
             </h2>
           </div>
 
-          {filtered.length === 0 ? (
-            <div className="py-10 text-center text-gray-500">No users match your filters.</div>
+          {users.length === 0 ? (
+            <div className="py-10 text-center text-gray-500">No users found.</div>
           ) : (
             <table className="table">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>User</th>
+                  <th>Email</th>
                   <th className="hidden md:table-cell">Name</th>
                   <th>Role</th>
                   <th className="hidden md:table-cell">Created</th>
                   <th className="hidden md:table-cell">Last Login</th>
-                  {/* <th className="text-right">Action</th> */}
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((u, idx) => {
+                {users.map((u, idx) => {
                   const isMe =
                     me?.email && u.user_email?.toLowerCase() === me.email.toLowerCase();
-
                   return (
                     <tr key={u._id}>
-                      <td>{idx + 1}</td>
-                      <td>
-                        <div className="font-medium">{u.user_email}</div>
-                      </td>
+                      <td>{(currentPage - 1) * LIMIT + idx + 1}</td>
+                      <td>{u.user_email}</td>
                       <td className="hidden md:table-cell">{u.user_name || "—"}</td>
                       <td>
                         <select
@@ -237,9 +253,34 @@ const AdminAllUser = () => {
         </div>
       </div>
 
-      {/* Footer note */}
+      {/* Pagination */}
+      {pageCount > 1 && (
+        <div className="flex justify-center py-4">
+          <ReactPaginate
+            previousLabel={"← Prev"}
+            nextLabel={"Next →"}
+            breakLabel={"…"}
+            pageCount={pageCount}
+            forcePage={Math.min(currentPage - 1, pageCount - 1)}
+            onPageChange={handlePageClick}
+            renderOnZeroPageCount={null}
+            containerClassName="join"
+            pageClassName="join-item"
+            pageLinkClassName="btn btn-sm"
+            previousClassName="join-item"
+            previousLinkClassName="btn btn-sm"
+            nextClassName="join-item"
+            nextLinkClassName="btn btn-sm"
+            activeLinkClassName="btn-primary text-white"
+            breakClassName="join-item"
+            breakLinkClassName="btn btn-sm btn-ghost"
+            disabledLinkClassName="btn-disabled"
+          />
+        </div>
+      )}
+
       <div className="text-xs text-gray-500 text-center">
-        Tip: You can’t modify your own role. Select a role from the dropdown to update a user.
+        Tip: You can’t modify your own role. Select a role from the dropdown to update another user.
       </div>
     </div>
   );
