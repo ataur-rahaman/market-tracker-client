@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
@@ -26,7 +26,16 @@ const ProductDetailsPage = () => {
     },
   });
 
-  // Fetch user watchlist (to check if already exists)
+  // Fetch reviews
+  const { data: reviews = [], refetch: refetchReviews } = useQuery({
+    queryKey: ["reviews", id],
+    queryFn: async () => {
+      const res = await axiosPublic.get(`/reviews/${id}`);
+      return res.data || [];
+    },
+  });
+
+  // Watchlist
   const { data: watchlist = [] } = useQuery({
     queryKey: ["watchlist", userKey],
     enabled: !!userKey,
@@ -36,7 +45,7 @@ const ProductDetailsPage = () => {
     },
   });
 
-  // Fetch user orders (to check if already bought)
+  // Orders
   const { data: orders = [] } = useQuery({
     queryKey: ["orders", userKey],
     enabled: !!userKey,
@@ -54,113 +63,111 @@ const ProductDetailsPage = () => {
     (order) => order.productId === product?._id
   );
 
-  // Add to Watchlist mutation
-  const addMutation = useMutation({
-    mutationFn: async () => {
-      return axiosPublic.post("/watchlist", {
+  // Watchlist Mutation
+  const addWatchlistMutation = useMutation({
+    mutationFn: async () =>
+      axiosPublic.post("/watchlist", {
         productId: product._id,
         userEmail: user.email,
-      });
-    },
+      }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["watchlist", userKey] });
+      qc.invalidateQueries(["watchlist", userKey]);
       Swal.fire("Added!", "Product added to your watchlist.", "success");
     },
-    onError: () => {
-      Swal.fire("Error!", "Could not add to watchlist.", "error");
-    },
+    onError: () => Swal.fire("Error!", "Could not add to watchlist.", "error"),
   });
 
   const handleAddToWatchlist = () => {
-    if (!user) {
-      Swal.fire("Login Required", "Please log in to add to watchlist.", "info");
-      return;
-    }
-    if (isAlreadyInWatchlist) {
-      Swal.fire("Info", "This product is already in your watchlist.", "info");
-      return;
-    }
-    addMutation.mutate();
+    if (!user)
+      return Swal.fire("Login Required", "Please log in first.", "info");
+    if (isAlreadyInWatchlist)
+      return Swal.fire("Info", "Already in your watchlist.", "info");
+    addWatchlistMutation.mutate();
   };
 
-  // Buy (Create order)
+  // Order Mutation
   const buyMutation = useMutation({
-    mutationFn: async () => {
-      return axiosPublic.post("/orders", {
+    mutationFn: async () =>
+      axiosPublic.post("/orders", {
         productId: product._id,
         buyerEmail: user.email,
-      });
-    },
+      }),
     onSuccess: () => {
-      // ✅ Make sure the orders list gets fresh data
-      qc.invalidateQueries({ queryKey: ["orders", userKey] });
-      toast.success("Order placed! Opening My Orders…", { autoClose: 900 });
-      navigate("/dashboard/user/my-order-list"); // immediate navigate; orders page will refetch
+      qc.invalidateQueries(["orders", userKey]);
+      toast.success("Order placed! Redirecting to My Orders…", {
+        autoClose: 900,
+      });
+      navigate("/dashboard/user/my-order-list");
     },
-    onError: () => {
-      Swal.fire("Error!", "Could not place order.", "error");
-    },
+    onError: () => Swal.fire("Error!", "Could not place order.", "error"),
   });
 
   const handleBuyProduct = async () => {
-    if (!user) {
-      Swal.fire("Login Required", "Please log in to place an order.", "info");
-      return;
-    }
-    if (user.role === "admin" || user.role === "vendor") {
-      Swal.fire("Not Allowed", "Only customers can place orders.", "warning");
-      return;
-    }
+    if (!user)
+      return Swal.fire("Login Required", "Please log in to buy.", "info");
+    if (user.role === "admin" || user.role === "vendor")
+      return Swal.fire("Not Allowed", "Only users can buy.", "warning");
 
-    const latestPrice = (product.prices || [])
-      .slice()
-      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
+    const latestPrice =
+      product.prices?.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     const priceShown = latestPrice?.price ?? product.price_per_unit;
 
     const result = await Swal.fire({
       title: "Confirm Purchase",
-      html: `
-        <div class="text-left">
-          <p><b>Item:</b> ${product.item_name}</p>
-          <p><b>Market:</b> ${product.market_name}</p>
-          <p><b>Price:</b> ৳${Number(priceShown).toFixed(2)}</p>
-        </div>
-      `,
+      html: `<p><b>Item:</b> ${product.item_name}</p>
+             <p><b>Market:</b> ${product.market_name}</p>
+             <p><b>Price:</b> ৳${Number(priceShown).toFixed(2)}</p>`,
       icon: "question",
       showCancelButton: true,
-      confirmButtonText: "Place Order",
+      confirmButtonText: "Buy Now",
     });
-
-    if (result.isConfirmed) {
-      buyMutation.mutate();
-    }
+    if (result.isConfirmed) buyMutation.mutate();
   };
 
-  const handleGoToWatchlist = () => {
-    toast.info("Redirecting to your watchlist…", { autoClose: 800 });
-    navigate("/watchlist");
+  // Review form state
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+
+  const reviewMutation = useMutation({
+    mutationFn: async () =>
+      axiosPublic.post(`/reviews/${id}`, {
+        userEmail: user.email,
+        userName: user.displayName || user.email.split("@")[0],
+        rating,
+        comment,
+      }),
+    onSuccess: () => {
+      setRating(0);
+      setComment("");
+      refetchReviews();
+      toast.success("Review submitted successfully!");
+    },
+    onError: () => toast.error("Failed to submit review."),
+  });
+
+  const handleSubmitReview = (e) => {
+    e.preventDefault();
+    if (!user) return toast.info("Please log in to post a review.");
+    if (!rating || !comment.trim())
+      return toast.warn("Please add rating and comment.");
+    reviewMutation.mutate();
   };
 
   if (isLoading) return <LoadingSpinner />;
   if (!product) return <p className="text-center text-red-500">❌ Product not found</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-base-100 shadow rounded-lg">
-      {/* Market + Image */}
-      <h2 className="text-2xl font-bold mb-4">🏪 {product.market_name}</h2>
+    <div className="max-w-4xl mx-auto p-6 bg-base-100 shadow rounded-lg space-y-6">
+      <h2 className="text-2xl font-bold">🏪 {product.market_name}</h2>
       <img
         src={product.image_url}
         alt={product.item_name}
-        className="w-full max-h-80 object-cover rounded mb-4"
+        className="w-full max-h-80 object-cover rounded"
       />
+      <p className="text-gray-600">📅 {product.date}</p>
 
-      {/* Date */}
-      <p className="text-gray-600 mb-4">📅 {product.date}</p>
-
-      {/* Price history */}
-      <h3 className="text-xl font-semibold mb-2">🥕 Item & Price History</h3>
-      <ul className="list-disc pl-6 mb-4">
+      <h3 className="text-xl font-semibold">🥕 Item & Price History</h3>
+      <ul className="list-disc pl-6">
         {product.prices?.map((p, idx) => (
           <li key={idx}>
             {product.item_name} — ৳{p.price}/kg{" "}
@@ -169,27 +176,77 @@ const ProductDetailsPage = () => {
         ))}
       </ul>
 
-      {/* Vendor Info */}
-      <h3 className="text-xl font-semibold mb-2">👨‍🌾 Vendor Info</h3>
+      <h3 className="text-xl font-semibold">👨‍🌾 Vendor Info</h3>
       <p>
-        <strong>{product.vendor_name}</strong> <br />
+        <strong>{product.vendor_name}</strong>
+        <br />
         {product.vendor_email}
       </p>
 
-      {/* Reviews */}
-      <div className="mt-6">
-        <h3 className="text-xl font-semibold mb-2">💬 User Reviews</h3>
-        {product.reviews?.length ? (
-          <ul className="space-y-2">
-            {product.reviews.map((r, idx) => (
-              <li key={idx} className="p-2 border rounded">
-                <strong>{r.user}</strong>: {r.comment}
-              </li>
+      {/* ⭐ Reviews Section */}
+      <div className="mt-8 border-t pt-4">
+        <h3 className="text-xl font-semibold mb-3">💬 Reviews & Comments</h3>
+
+        {/* Review Form */}
+        <form onSubmit={handleSubmitReview} className="space-y-3">
+          <div className="flex items-center gap-2">
+            {[1, 2, 3, 4, 5].map((num) => (
+              <span
+                key={num}
+                onClick={() => setRating(num)}
+                className={`cursor-pointer text-2xl ${
+                  num <= rating ? "text-yellow-400" : "text-gray-400"
+                }`}
+              >
+                ★
+              </span>
             ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500">No reviews yet.</p>
-        )}
+          </div>
+          <textarea
+            className="textarea textarea-bordered w-full"
+            placeholder="Share your experience with this product’s price..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          ></textarea>
+          <button
+            type="submit"
+            className="btn btn-primary btn-sm"
+            disabled={reviewMutation.isPending}
+          >
+            {reviewMutation.isPending ? "Submitting..." : "Submit Review"}
+          </button>
+        </form>
+
+        {/* Display Reviews */}
+        <div className="mt-5 space-y-3">
+          {reviews.length === 0 ? (
+            <p className="text-gray-500">No reviews yet. Be the first to comment!</p>
+          ) : (
+            reviews
+              .slice()
+              .reverse()
+              .map((r, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 border rounded-lg bg-base-200 flex flex-col gap-1"
+                >
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span>
+                      <strong>{r.userName}</strong> ({r.userEmail})
+                    </span>
+                    <span>{new Date(r.date).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex gap-1 text-yellow-400">
+                    {"★".repeat(r.rating)}
+                    <span className="text-gray-300">
+                      {"★".repeat(5 - r.rating)}
+                    </span>
+                  </div>
+                  <p>{r.comment}</p>
+                </div>
+              ))
+          )}
+        </div>
       </div>
 
       {/* Buttons */}
@@ -203,14 +260,9 @@ const ProductDetailsPage = () => {
             ⭐ Add to Watchlist
           </button>
         ) : (
-          <div className="flex gap-2 w-full">
-            <button disabled className="btn btn-outline flex-1 cursor-not-allowed">
-              ✅ In Watchlist
-            </button>
-            <button onClick={handleGoToWatchlist} className="btn btn-success flex-1">
-              📋 Go to Watchlist
-            </button>
-          </div>
+          <button disabled className="btn btn-outline flex-1 cursor-not-allowed">
+            ✅ In Watchlist
+          </button>
         )}
 
         {isAlreadyBought ? (
@@ -228,7 +280,6 @@ const ProductDetailsPage = () => {
         )}
       </div>
 
-      {/* Toasts */}
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
   );
