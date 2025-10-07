@@ -40,12 +40,12 @@ const AdvertisementHighlights = () => {
   };
 
   return (
-    <div className="max-w-7xl w-11/12 mx-auto p-4">
+    <div className="max-w-7xl w-11/12 mx-auto p-4 pb-10">
       <h2 className="text-2xl font-bold mb-4 text-center">✨ Advertisement Highlights</h2>
       <Slider {...settings}>
         {ads.map((ad) => (
-          <div key={ad._id} className="px-2">
-            <div className="card bg-base-100 shadow-xl">
+          <div key={ad._id} className="">
+            <div className="card bg-base-100 border border-gray-200">
               <figure className="h-64 overflow-hidden">
                 <img
                   src={ad.image_url}

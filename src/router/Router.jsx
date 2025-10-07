@@ -25,6 +25,8 @@ import VendorUpdateProduct from "../pages/vendor/VendorUpdateProduct";
 import VendorHomePage from "../pages/vendor/VendorHomePage";
 import UserHomePage from "../pages/user/UserHomePage";
 import AdminHomePage from "../pages/admin/AdminHomePage";
+import Payment from "../pages/payment/Payment";
+import PrivateRoute from "../router/privateRoutes/PrivateRoute";
 
 const router = createBrowserRouter([
   {
@@ -35,7 +37,10 @@ const router = createBrowserRouter([
       { path: "login", Component: LogIn },
       { path: "register", Component: Register },
       { path: "all-products", Component: AllProducts },
-      { path: "/products/:id", element: <ProductDetailsPage></ProductDetailsPage> },
+      {
+        path: "/products/:id",
+        element: <ProductDetailsPage></ProductDetailsPage>,
+      },
     ],
   },
 
@@ -48,8 +53,8 @@ const router = createBrowserRouter([
     ),
     children: [
       {
-        index:true,
-        element: <AdminHomePage></AdminHomePage>
+        index: true,
+        element: <AdminHomePage></AdminHomePage>,
       },
       {
         path: "/dashboard/admin/all-users",
@@ -122,7 +127,7 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <UserHomePage></UserHomePage>
+        element: <UserHomePage></UserHomePage>,
       },
       {
         path: "/dashboard/user/view-price-trends",
@@ -137,6 +142,11 @@ const router = createBrowserRouter([
         element: <UserMyOrderList></UserMyOrderList>,
       },
     ],
+  },
+
+  {
+    path: "/payment/:productId",
+    element: <PrivateRoute><Payment></Payment></PrivateRoute>,
   },
 
   { path: "/*", Component: ErrorPage },

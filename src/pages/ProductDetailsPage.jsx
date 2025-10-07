@@ -46,22 +46,22 @@ const ProductDetailsPage = () => {
   });
 
   // Orders
-  const { data: orders = [] } = useQuery({
-    queryKey: ["orders", userKey],
-    enabled: !!userKey,
-    queryFn: async () => {
-      const res = await axiosPublic.get(`/orders/${userKey}`);
-      return res.data || [];
-    },
-  });
+  // const { data: orders = [] } = useQuery({
+  //   queryKey: ["orders", userKey],
+  //   enabled: !!userKey,
+  //   queryFn: async () => {
+  //     const res = await axiosPublic.get(`/orders/${userKey}`);
+  //     return res.data || [];
+  //   },
+  // });
 
   const isAlreadyInWatchlist = watchlist.some(
     (item) => item.product?._id === product?._id
   );
 
-  const isAlreadyBought = orders.some(
-    (order) => order.productId === product?._id
-  );
+  // const isAlreadyBought = orders.some(
+  //   (order) => order.productId === product?._id
+  // );
 
   // Watchlist Mutation
   const addWatchlistMutation = useMutation({
@@ -85,43 +85,13 @@ const ProductDetailsPage = () => {
     addWatchlistMutation.mutate();
   };
 
-  // Order Mutation
-  const buyMutation = useMutation({
-    mutationFn: async () =>
-      axiosPublic.post("/orders", {
-        productId: product._id,
-        buyerEmail: user.email,
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries(["orders", userKey]);
-      toast.success("Order placed! Redirecting to My Orders…", {
-        autoClose: 900,
-      });
-      navigate("/dashboard/user/my-order-list");
-    },
-    onError: () => Swal.fire("Error!", "Could not place order.", "error"),
-  });
-
+  // Buy → go to payment (all buy/order logic happens in PaymentForm)
   const handleBuyProduct = async () => {
-    if (!user)
-      return Swal.fire("Login Required", "Please log in to buy.", "info");
-    if (user.role === "admin" || user.role === "vendor")
-      return Swal.fire("Not Allowed", "Only users can buy.", "warning");
-
-    const latestPrice =
-      product.prices?.slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-    const priceShown = latestPrice?.price ?? product.price_per_unit;
-
-    const result = await Swal.fire({
-      title: "Confirm Purchase",
-      html: `<p><b>Item:</b> ${product.item_name}</p>
-             <p><b>Market:</b> ${product.market_name}</p>
-             <p><b>Price:</b> ৳${Number(priceShown).toFixed(2)}</p>`,
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "Buy Now",
-    });
-    if (result.isConfirmed) buyMutation.mutate();
+    if (!user) {
+      Swal.fire("Login Required", "Please log in to buy.", "info");
+      return;
+    }
+    navigate(`/payment/${product._id}`, { state: { product } });
   };
 
   // Review form state
@@ -207,7 +177,7 @@ const ProductDetailsPage = () => {
             placeholder="Share your experience with this product’s price..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-          ></textarea>
+          />
           <button
             type="submit"
             className="btn btn-primary btn-sm"
@@ -226,10 +196,7 @@ const ProductDetailsPage = () => {
               .slice()
               .reverse()
               .map((r, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 border rounded-lg bg-base-200 flex flex-col gap-1"
-                >
+                <div key={idx} className="p-3 border rounded-lg bg-base-200 flex flex-col gap-1">
                   <div className="flex justify-between text-sm text-gray-600">
                     <span>
                       <strong>{r.userName}</strong> ({r.userEmail})
@@ -254,7 +221,7 @@ const ProductDetailsPage = () => {
         {!isAlreadyInWatchlist ? (
           <button
             onClick={handleAddToWatchlist}
-            disabled={!user || user.role === "admin" || user.role === "vendor"}
+            disabled={!user}
             className="btn btn-outline flex-1"
           >
             ⭐ Add to Watchlist
@@ -265,19 +232,26 @@ const ProductDetailsPage = () => {
           </button>
         )}
 
-        {isAlreadyBought ? (
+        {/* {isAlreadyBought ? (
           <button disabled className="btn btn-primary flex-1 cursor-not-allowed">
             ✅ Already Bought
           </button>
         ) : (
           <button
             onClick={handleBuyProduct}
-            disabled={!user || user.role === "admin" || user.role === "vendor"}
+            disabled={!user}
             className="btn btn-primary flex-1"
           >
             🛒 Buy Product
           </button>
-        )}
+        )} */}
+        <button
+            onClick={handleBuyProduct}
+            disabled={!user}
+            className="btn btn-primary flex-1"
+          >
+            🛒 Buy Product
+          </button>
       </div>
 
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
