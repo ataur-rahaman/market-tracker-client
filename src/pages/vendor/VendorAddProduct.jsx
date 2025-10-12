@@ -37,7 +37,7 @@ const VendorAddProduct = () => {
   }, [user, setValue]);
 
   const onSubmit = async (data) => {
-    console.log(data);
+    (data);
     try {
       const isoDate = data.date instanceof Date ? data.date.toISOString().split("T")[0] : data.date;
       const newProduct = {

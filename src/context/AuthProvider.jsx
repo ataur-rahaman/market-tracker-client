@@ -44,7 +44,7 @@ const AuthProvider = ({children}) => {
                     user_email: currentUser.email,
                     user_role: "user",
                 };
-                axios.post("http://localhost:3000/jwt", userData)
+                axios.post("https://market-tracker-server-pi.vercel.app/jwt", userData)
                 .then(res => {
                     const token = res.data.token;
                     localStorage.setItem("access-token", token);

@@ -10,7 +10,7 @@ const ProductSection = () => {
       setProducts(res.data);
     });
   }, [axiosPublic]);
-  console.log(products);
+  (products);
   return (
     <div className="py-[50px]">
       <h2 className="text-3xl font-bold text-center">Highlighted Products</h2>
