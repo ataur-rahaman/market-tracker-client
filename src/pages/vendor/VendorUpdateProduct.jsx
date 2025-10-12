@@ -60,6 +60,8 @@ const VendorUpdateProduct = () => {
   if (loading) return <LoadingSpinner />;
 
   return (
+    <>
+    <title>Update-product</title>
     <div className="max-w-3xl mx-auto p-6 bg-base-100 shadow rounded-lg">
       <h2 className="text-2xl font-bold mb-6">✏️ Update Product</h2>
 
@@ -154,6 +156,7 @@ const VendorUpdateProduct = () => {
         </button>
       </form>
     </div>
+    </>
   );
 };
 

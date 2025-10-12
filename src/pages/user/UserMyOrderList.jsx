@@ -46,6 +46,8 @@ const UserMyOrderList = () => {
     );
 
   return (
+    <>
+    <title>Order-list</title>
     <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-4">
       <h1 className="text-2xl md:text-3xl font-bold">🧾 My Orders</h1>
 
@@ -107,6 +109,7 @@ const UserMyOrderList = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

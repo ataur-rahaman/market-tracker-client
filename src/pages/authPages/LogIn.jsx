@@ -133,6 +133,8 @@ const LogIn = () => {
   };
 
   return (
+    <>
+    <title>Login</title>
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 pt-[50px]">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
@@ -219,6 +221,7 @@ const LogIn = () => {
         </button>
       </div>
     </div>
+    </>
   );
 };
 

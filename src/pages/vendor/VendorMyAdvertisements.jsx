@@ -84,6 +84,8 @@ const VendorMyAdvertisements = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
+    <>
+    <title>My-advertisements</title>
     <div className="p-0">
       <h2 className="text-2xl font-bold mb-4">
         📢 My Advertisements: {ads.length}
@@ -183,6 +185,7 @@ const VendorMyAdvertisements = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

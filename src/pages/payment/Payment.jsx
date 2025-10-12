@@ -9,9 +9,12 @@ console.log(import.meta.env.VITE_stripePublishableKey);
 const Payment = () => {
     return (
         
+        <>
+        <title>Payment</title>
         <Elements stripe={stripePromise}>
             <PaymentForm></PaymentForm>
         </Elements>
+        </>
 
     );
 };

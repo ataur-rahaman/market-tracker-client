@@ -14,6 +14,8 @@ const ForbiddenPage = () => {
   const userDashboard = dashboardLinks[role] || "/";
 
   return (
+    <>
+    <title>Forbidden</title>
     <div className="flex flex-col items-center justify-center h-screen text-center px-4">
       <h1 className="text-6xl font-bold text-red-600 mb-4">403</h1>
       <h2 className="text-2xl font-semibold mb-2">Access Denied</h2>
@@ -29,6 +31,7 @@ const ForbiddenPage = () => {
         </Link>
       </div>
     </div>
+    </>
   );
 };
 

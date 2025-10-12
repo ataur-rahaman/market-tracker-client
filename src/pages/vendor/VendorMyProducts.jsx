@@ -61,6 +61,8 @@ const VendorMyProducts = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
+    <>
+    <title>My-products</title>
     <div className="p-0 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">📦 My Products: {products.length}</h2>
@@ -224,6 +226,7 @@ const VendorMyProducts = () => {
         </dialog>
       )}
     </div>
+    </>
   );
 };
 

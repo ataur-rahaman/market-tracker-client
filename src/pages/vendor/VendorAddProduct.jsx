@@ -74,6 +74,8 @@ const VendorAddProduct = () => {
   };
 
   return (
+    <>
+    <title>Add-product</title>
     <div className="max-w-3xl mx-auto p-6 bg-base-100 shadow rounded-lg">
       <h2 className="text-2xl font-bold mb-6">➕ Add Product</h2>
 
@@ -192,6 +194,7 @@ const VendorAddProduct = () => {
         </button>
       </form>
     </div>
+    </>
   );
 };
 

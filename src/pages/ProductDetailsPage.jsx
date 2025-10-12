@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Swal from "sweetalert2";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import useAxiosPublic from "../hooks/useAxiosPublic";
 import useAuth from "../hooks/useAuth";
 import LoadingSpinner from "../components/LoadingSpinner";
 import useAxiosSecure from "../hooks/useAxiosSecure";
@@ -12,7 +11,6 @@ import useAxiosSecure from "../hooks/useAxiosSecure";
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const qc = useQueryClient();
@@ -129,6 +127,8 @@ const ProductDetailsPage = () => {
   if (!product) return <p className="text-center text-red-500">❌ Product not found</p>;
 
   return (
+    <>
+    <title>Product-details</title>
     <div className="max-w-4xl mx-auto p-6 bg-base-100 shadow rounded-lg space-y-6 mb-4">
       <h2 className="text-2xl font-bold">🏪 {product.market_name}</h2>
       <img
@@ -234,19 +234,6 @@ const ProductDetailsPage = () => {
           </button>
         )}
 
-        {/* {isAlreadyBought ? (
-          <button disabled className="btn btn-primary flex-1 cursor-not-allowed">
-            ✅ Already Bought
-          </button>
-        ) : (
-          <button
-            onClick={handleBuyProduct}
-            disabled={!user}
-            className="btn btn-primary flex-1"
-          >
-            🛒 Buy Product
-          </button>
-        )} */}
         <button
             onClick={handleBuyProduct}
             disabled={!user}
@@ -258,6 +245,7 @@ const ProductDetailsPage = () => {
 
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
+    </>
   );
 };
 

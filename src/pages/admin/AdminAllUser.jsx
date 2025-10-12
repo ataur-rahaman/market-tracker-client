@@ -122,6 +122,8 @@ const AdminAllUser = () => {
     );
 
   return (
+    <>
+    <title>All-user</title>
     <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -283,6 +285,7 @@ const AdminAllUser = () => {
         Tip: You can’t modify your own role. Select a role from the dropdown to update another user.
       </div>
     </div>
+    </>
   );
 };
 

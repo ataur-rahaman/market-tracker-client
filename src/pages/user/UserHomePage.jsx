@@ -35,6 +35,8 @@ const UserHomePage = () => {
   const recentWatchlist = watchlist.slice(0, 3);
 
   return (
+   <>
+   <title>User-panel</title>
     <div className="max-w-6xl mx-auto p-4 space-y-6">
       <h1 className="text-2xl font-bold">Welcome back, {user?.displayName || "User"} 👋</h1>
 
@@ -111,6 +113,7 @@ const UserHomePage = () => {
         </div>
       </div>
     </div>
+   </>
   );
 };
 

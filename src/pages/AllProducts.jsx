@@ -40,6 +40,8 @@ const AllProducts = () => {
   if (isLoading) return <LoadingSpinner />;
 
   return (
+    <>
+    <title>All-products</title>
     <div className="max-w-6xl mx-auto px-4 py-8">
       <h2 className="text-2xl font-bold mb-6">🛍️ All Products</h2>
 
@@ -115,6 +117,7 @@ const AllProducts = () => {
         </div>
       )}
     </div>
+    </>
   );
 };
 

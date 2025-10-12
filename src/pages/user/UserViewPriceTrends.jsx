@@ -98,6 +98,8 @@ const UserViewPriceTrends = () => {
     );
 
   return (
+    <>
+    <title>Price-trends</title>
     <div className="max-w-6xl mx-auto p-4 md:p-6">
       <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2 mb-4">
         <FaChartLine /> View Price Trends
@@ -201,6 +203,7 @@ const UserViewPriceTrends = () => {
         </section>
       </div>
     </div>
+    </>
   );
 };
 

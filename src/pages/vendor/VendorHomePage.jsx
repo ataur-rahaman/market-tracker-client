@@ -116,6 +116,8 @@ const VendorHomePage = () => {
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Vendor";
 
   return (
+    <>
+    <title>Vendor-panel</title>
     <div className="max-w-6xl mx-auto p-0 md:p-0 space-y-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -318,6 +320,7 @@ const VendorHomePage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

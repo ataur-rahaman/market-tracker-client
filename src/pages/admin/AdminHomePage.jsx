@@ -48,6 +48,8 @@ const AdminHomePage = () => {
   const pendingAds = ads.filter(ad => ad.status === "pending").length;
 
   return (
+    <>
+    <title>Admin-panel</title>
     <div className="max-w-6xl mx-auto p-4 space-y-6">
       <h1 className="text-2xl font-bold">Welcome, Admin 👑</h1>
 
@@ -117,6 +119,7 @@ const AdminHomePage = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

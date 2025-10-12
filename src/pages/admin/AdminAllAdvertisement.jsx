@@ -132,6 +132,8 @@ const AdminAllAdvertisement = () => {
     );
 
   return (
+    <>
+    <title>All-advertisement</title>
     <div className="max-w-7xl w-full mx-auto p-4 md:p-0 space-y-6 mt-2">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -281,6 +283,7 @@ const AdminAllAdvertisement = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

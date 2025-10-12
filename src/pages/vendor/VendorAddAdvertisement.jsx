@@ -66,6 +66,8 @@ const VendorAddAdvertisement = () => {
   };
 
   return (
+    <>
+    <title>Add-advertisement</title>
     <div className="max-w-3xl mx-auto p-6 bg-base-100 shadow rounded-lg">
       <h2 className="text-2xl font-bold mb-6">📢 Add Advertisement</h2>
 
@@ -112,6 +114,7 @@ const VendorAddAdvertisement = () => {
         </button>
       </form>
     </div>
+    </>
   );
 };
 

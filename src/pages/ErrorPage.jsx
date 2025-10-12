@@ -7,6 +7,8 @@ const ErrorPage = () => {
   const navigate = useNavigate();
 
   return (
+    <>
+    <title>Error</title>
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-base-200 to-base-300 text-center px-4">
       {/* Animated Emoji */}
       <motion.div
@@ -69,6 +71,7 @@ const ErrorPage = () => {
         404
       </motion.div>
     </div>
+    </>
   );
 };
 

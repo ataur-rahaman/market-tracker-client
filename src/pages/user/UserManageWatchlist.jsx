@@ -102,6 +102,8 @@ const UserManageWatchlist = () => {
     );
 
   return (
+    <>
+    <title>Watchlist</title>
     <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold">⭐ Manage Watchlist</h1>
@@ -196,6 +198,7 @@ const UserManageWatchlist = () => {
 
       <ToastContainer position="top-right" autoClose={2000} hideProgressBar />
     </div>
+    </>
   );
 };
 

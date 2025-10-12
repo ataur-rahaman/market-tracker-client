@@ -55,6 +55,8 @@ const AdminAllOrders = () => {
   }
 
   return (
+    <>
+    <title>All-orders</title>
     <div className="max-w-7xl w-full mx-auto p-4 md:p-0 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold">📦 All Orders</h1>
@@ -149,6 +151,7 @@ const AdminAllOrders = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
