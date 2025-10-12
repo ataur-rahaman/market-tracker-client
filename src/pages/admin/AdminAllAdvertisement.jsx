@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "react-router";
 import { FaSearch, FaSyncAlt, FaTrash, FaAd, FaExternalLinkAlt } from "react-icons/fa";
 import Swal from "sweetalert2";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const STATUS_OPTIONS = ["pending", "active", "paused", "rejected"];
 const STATUS_COLORS = {
@@ -17,7 +17,7 @@ const STATUS_COLORS = {
 const fmt = (d) => (d ? new Date(d).toLocaleDateString() : "—");
 
 const AdminAllAdvertisement = () => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const qc = useQueryClient();
 
   // controls
@@ -28,7 +28,7 @@ const AdminAllAdvertisement = () => {
   const { data: ads = [], isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["adminAllAds"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/advertisements");
+      const res = await axiosSecure.get("/advertisements");
       return res.data || [];
     },
     refetchOnWindowFocus: false,
@@ -38,7 +38,7 @@ const AdminAllAdvertisement = () => {
   // mutate: update status
   const updateStatus = useMutation({
     mutationFn: async ({ _id, status }) => {
-      const res = await axiosPublic.patch(`/advertisements/${_id}/status`, { status });
+      const res = await axiosSecure.patch(`/advertisements/${_id}/status`, { status });
       return res.data;
     },
     onMutate: async (vars) => {
@@ -60,7 +60,7 @@ const AdminAllAdvertisement = () => {
   // mutate: delete ad
   const deleteAd = useMutation({
     mutationFn: async ({ _id }) => {
-      const res = await axiosPublic.delete(`/advertisements/${_id}`);
+      const res = await axiosSecure.delete(`/advertisements/${_id}`);
       return res.data;
     },
     onMutate: async (vars) => {
@@ -132,7 +132,7 @@ const AdminAllAdvertisement = () => {
     );
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+    <div className="max-w-7xl w-full mx-auto p-4 md:p-0 space-y-6 mt-2">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -189,7 +189,7 @@ const AdminAllAdvertisement = () => {
 
       {/* Table */}
       <div className="card bg-base-100 shadow">
-        <div className="card-body overflow-x-auto">
+        <div className="card-body p-0 overflow-x-auto">
           <table className="table">
             <thead>
               <tr>
@@ -219,11 +219,11 @@ const AdminAllAdvertisement = () => {
                       <div className="flex items-center gap-3">
                         <div className="avatar">
                           <div className="mask mask-squircle w-10 h-10">
-                            <img src={ad.image_url} alt={ad.title} />
+                            <img src={ad.image_url} alt={ad.ad_title} />
                           </div>
                         </div>
                         <div>
-                          <div className="font-semibold">{ad.title || "Untitled"}</div>
+                          <div className="font-semibold">{ad.ad_title || "Untitled"}</div>
                           {ad.cta_url && (
                             <a
                               href={ad.cta_url}

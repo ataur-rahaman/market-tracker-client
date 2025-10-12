@@ -1,14 +1,14 @@
 import React from "react";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { Controller, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const VendorAddProduct = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
   const {
     register,
@@ -59,7 +59,7 @@ const VendorAddProduct = () => {
         item_description: data.item_description,
       };
 
-      const res = await axiosPublic.post("/products", newProduct);
+      const res = await axiosSecure.post("/products", newProduct);
 
       if (res?.data?.insertedId) {
         Swal.fire("Success!", "Product added successfully", "success");

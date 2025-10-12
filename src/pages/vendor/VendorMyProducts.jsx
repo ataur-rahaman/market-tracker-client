@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from "react";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import { Link } from "react-router";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const VendorMyProducts = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
   const [feedbackModal, setFeedbackModal] = useState({
     open: false,
@@ -23,7 +23,7 @@ const VendorMyProducts = () => {
     queryKey: ["vendorProducts", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosPublic.get(
+      const res = await axiosSecure.get(
         `/products/vendor/${encodeURIComponent(user.email.toLowerCase())}`
       );
       return res.data;
@@ -49,7 +49,7 @@ const VendorMyProducts = () => {
     if (!confirm.isConfirmed) return;
 
     try {
-      await axiosPublic.delete(`/products/${id}`);
+      await axiosSecure.delete(`/products/${id}`);
       Swal.fire("Deleted!", "Product has been deleted.", "success");
       refetch();
     } catch (error) {

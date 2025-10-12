@@ -18,6 +18,7 @@ const NavBar = () => {
   const handleLogOut = async () => {
     try {
       await logOutUser();
+      localStorage.removeItem("access-token");
     } catch (error) {
       if (error) {
         Swal.fire({

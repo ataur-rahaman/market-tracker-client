@@ -5,12 +5,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const UserManageWatchlist = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -27,7 +27,7 @@ const UserManageWatchlist = () => {
     queryKey: ["watchlist", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosPublic.get(
+      const res = await axiosSecure.get(
         `/watchlist/${encodeURIComponent(user.email.toLowerCase())}`
       );
       return res.data || [];
@@ -39,7 +39,7 @@ const UserManageWatchlist = () => {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (watchlistId) => {
-      const res = await axiosPublic.delete(`/watchlist/${watchlistId}`);
+      const res = await axiosSecure.delete(`/watchlist/${watchlistId}/${user.email}`);
       return res.data;
     },
     onMutate: async (watchlistId) => {

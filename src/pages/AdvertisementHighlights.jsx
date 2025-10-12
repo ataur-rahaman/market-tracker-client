@@ -15,9 +15,9 @@ const AdvertisementHighlights = () => {
   const { data: ads = [], isLoading } = useQuery({
     queryKey: ["advertisements"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/advertisements");
+      const res = await axiosPublic.get("/advertisements-active");
       // optionally filter here if your backend doesn’t
-      return res.data.filter((ad) => ad.status === "active");
+      return res.data;
     },
   });
 

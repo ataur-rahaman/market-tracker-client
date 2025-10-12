@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import axios from "axios";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const VendorAddAdvertisement = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const { register, handleSubmit, reset } = useForm();
   const [loading, setLoading] = useState(false);
 
@@ -47,7 +47,7 @@ const VendorAddAdvertisement = () => {
       };
 
       // Save to backend
-      const res = await axiosPublic.post("/advertisements", newAd);
+      const res = await axiosSecure.post("/advertisements", newAd);
 
       if (res.data.insertedId) {
         Swal.fire(

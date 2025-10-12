@@ -3,19 +3,19 @@ import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { FaBoxOpen, FaStar, FaShoppingCart, FaChartLine } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const UserHomePage = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const userKey = user?.email?.toLowerCase();
 
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["orders", userKey],
     enabled: !!userKey,
     queryFn: async () => {
-      const res = await axiosPublic.get(`/orders/${encodeURIComponent(userKey)}`);
+      const res = await axiosSecure.get(`/orders/${encodeURIComponent(userKey)}`);
       return res.data || [];
     },
   });
@@ -24,7 +24,7 @@ const UserHomePage = () => {
     queryKey: ["watchlist", userKey],
     enabled: !!userKey,
     queryFn: async () => {
-      const res = await axiosPublic.get(`/watchlist/${encodeURIComponent(userKey)}`);
+      const res = await axiosSecure.get(`/watchlist/${encodeURIComponent(userKey)}`);
       return res.data || [];
     },
   });

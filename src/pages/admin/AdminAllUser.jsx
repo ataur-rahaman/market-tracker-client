@@ -4,9 +4,9 @@ import { FaUserShield, FaSearch, FaSyncAlt } from "react-icons/fa";
 import { MdAdminPanelSettings } from "react-icons/md";
 import ReactPaginate from "react-paginate";
 import Swal from "sweetalert2";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import useAuth from "../../hooks/useAuth";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const ROLE_OPTIONS = ["user", "vendor", "admin"];
 const LIMIT = 8;
@@ -22,7 +22,7 @@ const formatDate = (val) => {
 };
 
 const AdminAllUser = () => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const { user: me } = useAuth();
   const qc = useQueryClient();
 
@@ -40,7 +40,7 @@ const AdminAllUser = () => {
   } = useQuery({
     queryKey: ["adminAllUsers", currentPage, roleFilter, search],
     queryFn: async () => {
-      const res = await axiosPublic.get(
+      const res = await axiosSecure.get(
         `/users?page=${currentPage}&limit=${LIMIT}&role=${encodeURIComponent(
           roleFilter
         )}&search=${encodeURIComponent(search)}`
@@ -59,7 +59,7 @@ const AdminAllUser = () => {
   // Update role mutation
   const { mutate: updateRole, isLoading: updating } = useMutation({
     mutationFn: async ({ _id, role }) => {
-      const res = await axiosPublic.patch(`/users/${_id}/role`, { role });
+      const res = await axiosSecure.patch(`/users/${_id}/role`, { role });
       return res.data;
     },
     onMutate: async (vars) => {

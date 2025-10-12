@@ -2,16 +2,16 @@ import React from "react";
 import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { FaUsers, FaBoxOpen, FaClock, FaCheckCircle, FaTimesCircle, FaShoppingCart, FaAd } from "react-icons/fa";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const AdminHomePage = () => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ["adminUsers"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/users");
+      const res = await axiosSecure.get("/users");
       return res.data || [];
     },
   });
@@ -19,7 +19,7 @@ const AdminHomePage = () => {
   const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: ["adminProducts"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/products");
+      const res = await axiosSecure.get("/products");
       return res.data || [];
     },
   });
@@ -27,7 +27,7 @@ const AdminHomePage = () => {
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["adminOrders"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/orders");
+      const res = await axiosSecure.get("/orders");
       return res.data || [];
     },
   });
@@ -35,7 +35,7 @@ const AdminHomePage = () => {
   const { data: ads = [], isLoading: adsLoading } = useQuery({
     queryKey: ["adminAds"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/advertisements");
+      const res = await axiosSecure.get("/advertisements");
       return res.data || [];
     },
   });

@@ -2,12 +2,12 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const UserMyOrderList = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
 
   const userKey = user?.email ? user.email.toLowerCase() : undefined;
@@ -16,7 +16,7 @@ const UserMyOrderList = () => {
     queryKey: ["orders", userKey],
     enabled: !!userKey,
     queryFn: async () => {
-      const res = await axiosPublic.get(`/orders/${encodeURIComponent(userKey)}`);
+      const res = await axiosSecure.get(`/orders/${encodeURIComponent(userKey)}`);
       return res.data || [];
     },
     refetchOnWindowFocus: true,

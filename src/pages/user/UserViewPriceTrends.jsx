@@ -10,8 +10,8 @@ import {
   Tooltip,
 } from "recharts";
 import { FaLeaf, FaChartLine } from "react-icons/fa";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const shortDate = (iso) => {
   try {
@@ -33,12 +33,12 @@ const trendPercent = (arr, n = 7) => {
 };
 
 const UserViewPriceTrends = () => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
   const { data: products = [], isLoading, isError } = useQuery({
     queryKey: ["priceTrends"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/products");
+      const res = await axiosSecure.get("/products");
       return res.data || [];
     },
     staleTime: 1000 * 60 * 5,

@@ -1,11 +1,11 @@
 import React, { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const AdminAllOrders = () => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const prevCountRef = useRef(0);
 
@@ -18,7 +18,7 @@ const AdminAllOrders = () => {
   } = useQuery({
     queryKey: ["adminAllOrders"],
     queryFn: async () => {
-      const res = await axiosPublic.get("/orders"); // admin: all orders
+      const res = await axiosSecure.get("/orders"); // admin: all orders
       return res.data || [];
     },
     // 👇 live-ish updates
@@ -55,7 +55,7 @@ const AdminAllOrders = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-4">
+    <div className="max-w-7xl w-full mx-auto p-4 md:p-0 space-y-4">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold">📦 All Orders</h1>
         <div className="flex items-center gap-3">
@@ -67,7 +67,7 @@ const AdminAllOrders = () => {
       </div>
 
       <div className="card bg-base-100 shadow">
-        <div className="card-body overflow-x-auto">
+        <div className="card-body p-0 overflow-x-auto">
           <table className="table">
             <thead>
               <tr>
@@ -132,7 +132,7 @@ const AdminAllOrders = () => {
                       <td className="text-right">
                         <div className="flex justify-end gap-2">
                           <button
-                            className="btn btn-sm btn-outline"
+                            className="btn btn-sm btn-outline ml-5"
                             onClick={() => viewProduct(o.productId)}
                           >
                             🔍 View Details

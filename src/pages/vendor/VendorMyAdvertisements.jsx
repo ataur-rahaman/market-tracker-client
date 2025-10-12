@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const VendorMyAdvertisements = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
   const [editingAd, setEditingAd] = useState(null);
 
@@ -22,7 +22,7 @@ const VendorMyAdvertisements = () => {
     queryKey: ["vendorAdvertisements", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosPublic.get(
+      const res = await axiosSecure.get(
         `/advertisements/vendor/${user?.email}`
       );
       return res.data;
@@ -45,7 +45,7 @@ const VendorMyAdvertisements = () => {
       }
     });
     try {
-      await axiosPublic.delete(`/advertisements/${id}`);
+      await axiosSecure.delete(`/advertisements/${id}`);
       toast.success("Advertisement deleted successfully!");
       refetch();
     } catch (error) {
@@ -63,7 +63,7 @@ const VendorMyAdvertisements = () => {
     const { _id, ...payload } = editingAd;
 
     try {
-      const res = await axiosPublic.put(
+      const res = await axiosSecure.put(
         `/advertisements/${editingAd._id}`,
         payload
       );

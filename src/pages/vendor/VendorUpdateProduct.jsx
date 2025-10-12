@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 import useUserRole from "../../hooks/useUserRole";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import Swal from "sweetalert2";
@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 const VendorUpdateProduct = () => {
   const { id } = useParams(); // product id
   const navigate = useNavigate();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const { role } = useUserRole(); // ✅ get current user role (vendor/admin)
   const location = useLocation();
 //   const [product, setProduct] = useState(null);
@@ -19,7 +19,7 @@ const VendorUpdateProduct = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axiosPublic.get(`/products/${id}`);
+        const res = await axiosSecure.get(`/products/${id}`);
         // setProduct(res.data);
         setFormData(res.data);
       } catch (error) {
@@ -30,7 +30,7 @@ const VendorUpdateProduct = () => {
       }
     };
     fetchProduct();
-  }, [id, axiosPublic]);
+  }, [id, axiosSecure]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -42,7 +42,7 @@ const VendorUpdateProduct = () => {
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
-      const res = await axiosPublic.put(`/products/${id}`, {
+      const res = await axiosSecure.put(`/products/${id}`, {
         ...formData,
         updated_by: role, // ✅ track who updated
       });

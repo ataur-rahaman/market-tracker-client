@@ -7,11 +7,13 @@ import "react-toastify/dist/ReactToastify.css";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import useAuth from "../hooks/useAuth";
 import LoadingSpinner from "../components/LoadingSpinner";
+import useAxiosSecure from "../hooks/useAxiosSecure";
 
 const ProductDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const qc = useQueryClient();
 
@@ -21,7 +23,7 @@ const ProductDetailsPage = () => {
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axiosPublic.get(`/products/${id}`);
+      const res = await axiosSecure.get(`/products/${id}`);
       return res.data;
     },
   });
@@ -30,7 +32,7 @@ const ProductDetailsPage = () => {
   const { data: reviews = [], refetch: refetchReviews } = useQuery({
     queryKey: ["reviews", id],
     queryFn: async () => {
-      const res = await axiosPublic.get(`/reviews/${id}`);
+      const res = await axiosSecure.get(`/reviews/${id}`);
       return res.data || [];
     },
   });
@@ -40,7 +42,7 @@ const ProductDetailsPage = () => {
     queryKey: ["watchlist", userKey],
     enabled: !!userKey,
     queryFn: async () => {
-      const res = await axiosPublic.get(`/watchlist/${userKey}`);
+      const res = await axiosSecure.get(`/watchlist/${userKey}`);
       return res.data || [];
     },
   });
@@ -66,7 +68,7 @@ const ProductDetailsPage = () => {
   // Watchlist Mutation
   const addWatchlistMutation = useMutation({
     mutationFn: async () =>
-      axiosPublic.post("/watchlist", {
+      axiosSecure.post("/watchlist", {
         productId: product._id,
         userEmail: user.email,
       }),
@@ -100,7 +102,7 @@ const ProductDetailsPage = () => {
 
   const reviewMutation = useMutation({
     mutationFn: async () =>
-      axiosPublic.post(`/reviews/${id}`, {
+      axiosSecure.post(`/reviews/${id}`, {
         userEmail: user.email,
         userName: user.displayName || user.email.split("@")[0],
         rating,
@@ -127,7 +129,7 @@ const ProductDetailsPage = () => {
   if (!product) return <p className="text-center text-red-500">❌ Product not found</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-base-100 shadow rounded-lg space-y-6">
+    <div className="max-w-4xl mx-auto p-6 bg-base-100 shadow rounded-lg space-y-6 mb-4">
       <h2 className="text-2xl font-bold">🏪 {product.market_name}</h2>
       <img
         src={product.image_url}

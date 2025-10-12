@@ -13,8 +13,8 @@ import {
 } from "react-icons/fa";
 import ReactPaginate from "react-paginate";
 import Swal from "sweetalert2";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const STATUS_COLORS = {
   approved: "badge-success",
@@ -23,7 +23,7 @@ const STATUS_COLORS = {
 };
 
 const AdminAllProduct = () => {
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const qc = useQueryClient();
   const location = useLocation();
 
@@ -46,7 +46,7 @@ const AdminAllProduct = () => {
   } = useQuery({
     queryKey: ["adminAllProducts", currentPage, statusFilter, search],
     queryFn: async () => {
-      const res = await axiosPublic.get(
+      const res = await axiosSecure.get(
         `/products-admin?page=${currentPage}&limit=${LIMIT}&status=${encodeURIComponent(
           statusFilter
         )}&search=${encodeURIComponent(search)}`
@@ -65,7 +65,7 @@ const AdminAllProduct = () => {
   // Actions (no optimistic cache; we refetch server data)
   const approveMutation = useMutation({
     mutationFn: async (product) =>
-      axiosPublic.patch(`/products/${product._id}/status`, {
+      axiosSecure.patch(`/products/${product._id}/status`, {
         status: "approved",
         reason: null,
         feedback: null,
@@ -79,7 +79,7 @@ const AdminAllProduct = () => {
 
   const rejectMutation = useMutation({
     mutationFn: async ({ product, reason, feedback }) =>
-      axiosPublic.patch(`/products/${product._id}/status`, {
+      axiosSecure.patch(`/products/${product._id}/status`, {
         status: "rejected",
         reason,
         feedback,
@@ -92,7 +92,7 @@ const AdminAllProduct = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: async (product) => axiosPublic.delete(`/products/${product._id}`),
+    mutationFn: async (product) => axiosSecure.delete(`/products/${product._id}`),
     onSuccess: () => {
       Swal.fire("Deleted", "Product removed successfully", "success");
       // If we deleted the last item on the page, bump back a page to keep UX smooth

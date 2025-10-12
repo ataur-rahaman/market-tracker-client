@@ -3,8 +3,8 @@ import { Link } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { FaBoxOpen, FaCheckCircle, FaClock, FaPlus, FaStore, FaChartLine, FaMapMarkerAlt } from "react-icons/fa";
 import useAuth from "../../hooks/useAuth";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../components/LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 /** Tiny inline sparkline without any chart library */
 const Sparkline = ({ data = [], width = 120, height = 36, strokeWidth = 2 }) => {
@@ -34,13 +34,13 @@ const Sparkline = ({ data = [], width = 120, height = 36, strokeWidth = 2 }) => 
 
 const VendorHomePage = () => {
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
 
   const { data: products = [], isLoading, isError } = useQuery({
     queryKey: ["vendorProducts", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosPublic.get(`/products/vendor/${encodeURIComponent(user.email.toLowerCase())}`);
+      const res = await axiosSecure.get(`/products/vendor/${encodeURIComponent(user.email.toLowerCase())}`);
       return res.data || [];
     },
     staleTime: 1000 * 60 * 5,

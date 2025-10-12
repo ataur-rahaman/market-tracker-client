@@ -8,7 +8,7 @@ const RootLayout = () => {
   return (
     <div>
       <NavBar></NavBar>
-      <div className="pt-20"><Outlet></Outlet></div>
+      <div className="pt-15"><Outlet></Outlet></div>
       <Footer></Footer>
       <ToastContainer
         position="top-right"
